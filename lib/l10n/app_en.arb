@@ -1,0 +1,90 @@
+{
+  "noProductListSelected": "No product list selected",
+  "noProductListSelectedDesc": "No product list selected, please navigate to settings and select or create a product list first",
+  "products": "Products",
+  "order": "Order",
+  "goToSettings": "Go to settings",
+  "noOrderYet": "No order yet",
+  "sum": "Sum",
+  "finish": "Finish",
+  "doOrder": "Order",
+  "productLists": "Product lists",
+  "noProductLists": "No product lists available – please create or import your first product list",
+  "addOrImport": "Add or import",
+  "addManually": "Add manually",
+  "import": "Import",
+  "importFailed": "Import failed",
+  "productCount": "{count} products",
+  "@productCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "save": "Save",
+  "select": "Select",
+  "edit": "Edit",
+  "share": "Share",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "done": "Done",
+  "deletionDisabledDesc": "Deletion is only possible for non-selected product lists",
+  "addProductList": "Add product list",
+  "name": "Name",
+  "productRequired": "At least one product is required",
+  "unknownError": "Unknown error",
+  "deleteItem": "Delete {item}?",
+  "@deleteItem": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "deletionQuestion": "Are you sure you want to delete {item}?",
+  "@deletionQuestion": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "editProduct": "Edit product",
+  "addProduct": "Add product",
+  "unit": "Unit",
+  "price": "Price",
+  "color": "Color",
+  "nameNotEmpty": "Name must not be empty",
+  "invalidPriceFormat": "Invalid format",
+  "settings": "Settings",
+  "multipleOrders": "Multiple orders",
+  "multipleOrdersDesc": "Allows management of multiple orders at once",
+  "inputColumns": "Input columns",
+  "inputColumnsDesc": "The amount of columns for product input to orders",
+  "editProductListsDesc": "Selection and editing of product lists",
+  "multipleOrdersError": "Open orders must be closed to change this setting",
+  "unfinishedOrderDeletionWarning": "Delete order?",
+  "unfinishedOrderDeletionWarningDesc": "Are you sure you want to delete this order?",
+  "requiredValidationErrorMessage": "{field} is required",
+  "@requiredValidationErrorMessage": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "noOrdersYet": "You haven't added any orders yet",
+  "orderName": "Order name",
+  "finishOrder": "Finish",
+  "deleteOrder": "Delete order?",
+  "deleteOrderDesc": "Do you really want to delete {orderName}?",
+  "@deleteOrderDesc": {
+    "placeholders": {
+      "orderName": {
+        "type": "String"
+      }
+    }
+  },
+  "splitBill": "Split bill"
+}
