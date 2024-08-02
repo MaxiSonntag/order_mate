@@ -43,6 +43,9 @@ class OrderMate extends StatelessWidget {
         BlocProvider(
           create: (context) => OrderCubit(),
         ),
+        BlocProvider(
+          create: (context) => InputColumnsCubit(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -83,9 +86,6 @@ class OrderMate extends StatelessWidget {
                 create: (context) => MultipleOrdersCubit(
                   context.read<OrderCubit>().state,
                 )..publishState(),
-              ),
-              BlocProvider(
-                create: (context) => InputColumnsCubit(),
               ),
             ],
             child: Builder(builder: (context) {

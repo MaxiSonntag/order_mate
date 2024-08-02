@@ -332,45 +332,53 @@ enum MenuProductAction {
   delete,
 }
 
-class EditProductSheet extends StatelessWidget {
+class EditProductSheet extends StatefulWidget {
   final Product? product;
 
+  const EditProductSheet({
+    super.key,
+    this.product,
+  });
+
+  @override
+  State<EditProductSheet> createState() => _EditProductSheetState();
+}
+
+class _EditProductSheetState extends State<EditProductSheet> {
   final _formKey = GlobalKey<FormState>();
 
   final _autovalidate =
       ValueNotifier<AutovalidateMode>(AutovalidateMode.disabled);
 
   final _displayNameNode = FocusNode();
-
-  final TextEditingController _displayNameCtrl;
-
   final _priceNode = FocusNode();
-
-  final TextEditingController _priceCtrl;
-
   final _unitNode = FocusNode();
 
-  final TextEditingController _unitCtrl;
+  late final TextEditingController _displayNameCtrl;
+  late final TextEditingController _priceCtrl;
+  late final TextEditingController _unitCtrl;
+  late final ValueNotifier<Color> _currentColor;
 
-  final ValueNotifier<Color> _currentColor;
+  bool get isEdit => widget.product != null;
 
-  EditProductSheet({
-    super.key,
-    this.product,
-  })  : _displayNameCtrl = TextEditingController(
-          text: product?.name,
-        ),
-        _priceCtrl = TextEditingController(
-          text: product?.price.toStringAsFixed(2),
-        ),
-        _unitCtrl = TextEditingController(
-          text: product?.unit,
-        ),
-        _currentColor = ValueNotifier(
-          product?.color ?? Colors.green,
-        );
 
-  bool get isEdit => product != null;
+  @override
+  void initState() {
+    super.initState();
+    _displayNameCtrl = TextEditingController(
+      text: widget.product?.name,
+    );
+    _priceCtrl = TextEditingController(
+      text: widget.product?.price.toStringAsFixed(2),
+    );
+    _unitCtrl = TextEditingController(
+      text: widget.product?.unit,
+    );
+    _currentColor = ValueNotifier(
+      widget.product?.color ?? Colors.green,
+    );
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -502,7 +510,7 @@ class EditProductSheet extends StatelessWidget {
         name: name,
         unit: unit,
         price: price,
-        sortingKey: product?.sortingKey ?? -1,
+        sortingKey: widget.product?.sortingKey ?? -1,
         hexColor: color.hexString,
       );
       Navigator.of(context).pop(newProduct);
