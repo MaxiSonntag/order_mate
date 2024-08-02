@@ -7,7 +7,10 @@ import Flutter
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    GeneratedPluginRegistrant.register(with: self)
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+      guard #available(iOS 13.0, *) else {
+          GeneratedPluginRegistrant.register(with: self)
+          return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+      }
+      return true
   }
 }

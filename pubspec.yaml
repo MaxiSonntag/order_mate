@@ -29,6 +29,7 @@ dependencies:
   share_plus: ^10.0.0
   uuid: ^4.4.2
   intl: any
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:

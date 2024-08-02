@@ -156,30 +156,25 @@ class AddMenuSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: BlocProvider(
-        create: (context) => MenuImportCubit(),
-        child: Builder(builder: (context) {
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
-            child: BlocBuilder<MenuImportCubit, MenuImportState>(
-              builder: (context, state) {
-                if (state is MenuImportInitial) {
-                  return _buildSelection(context);
-                }
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
+        child: BlocBuilder<MenuImportCubit, MenuImportState>(
+          builder: (context, state) {
+            if (state is MenuImportInitial) {
+              return _buildSelection(context);
+            }
 
-                if (state is MenuImportPickFile || state is MenuImportRunning) {
-                  return _buildImportRunning();
-                }
+            if (state is MenuImportPickFile || state is MenuImportRunning) {
+              return _buildImportRunning();
+            }
 
-                if (state is MenuImportFailure) {
-                  return _buildImportFailure(context);
-                }
+            if (state is MenuImportFailure) {
+              return _buildImportFailure(context);
+            }
 
-                return _buildImported(context, (state as MenuImported).menu);
-              },
-            ),
-          );
-        }),
+            return _buildImported(context, (state as MenuImported).menu);
+          },
+        ),
       ),
     );
   }
@@ -212,16 +207,22 @@ class AddMenuSheet extends StatelessWidget {
   }
 
   Widget _buildImportFailure(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    return Row(
       children: [
-        Icon(
-          Icons.error_outline,
-          color: Theme.of(context).colorScheme.error,
-          size: 46,
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.error_outline,
+                color: Theme.of(context).colorScheme.error,
+                size: 46,
+              ),
+              const SizedBox(height: 16.0),
+              Text(context.translate.importFailed),
+            ],
+          ),
         ),
-        const SizedBox(height: 16.0),
-        Text(context.translate.importFailed),
       ],
     );
   }
