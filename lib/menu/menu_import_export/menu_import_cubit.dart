@@ -26,7 +26,7 @@ class MenuImportCubit extends Cubit<MenuImportState> {
 
     emit(MenuImportRunning());
 
-    final fileRef = File(pickedFile!.files.first.path!);
+    final fileRef = File(pickedFile.files.first.path!);
     try {
       final fileContent = fileRef.readAsStringSync();
       final menuExport = MenuExport.fromJson(jsonDecode(fileContent));

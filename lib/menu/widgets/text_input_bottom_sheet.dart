@@ -11,13 +11,13 @@ class TextInputBottomSheet extends StatelessWidget {
   final FocusNode _inputNode = FocusNode();
 
   TextInputBottomSheet({
-    Key? key,
+    super.key,
     this.title,
     this.message,
     required String currentValue,
     required this.displayName,
     this.icon,
-  }) : super(key: key) {
+  }) {
     _inputCtrl.text = currentValue;
   }
 

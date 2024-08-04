@@ -1,13 +1,12 @@
-import 'dart:math';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ordermate/menu/settings/cubits/multiple_orders_cubit.dart';
 import 'package:ordermate/menu/widgets/text_input_bottom_sheet.dart';
 import 'package:ordermate/order/order_cubit.dart';
+import 'package:ordermate/order/order_list.dart';
 import 'package:ordermate/order/product_order.dart';
-import 'package:ordermate/order/subtotal_cubit.dart';
+import 'package:ordermate/order/subtotal_view.dart';
 import 'package:ordermate/order_overview/customer_order.dart';
 import 'package:ordermate/utils/extensions.dart';
 
@@ -21,28 +20,55 @@ class ProductOrderView extends StatelessWidget {
     super.key,
   });
 
-  _onPressed(BuildContext context, bool multipleOrdersAllowed) async {
+  _onPressed(
+    BuildContext context,
+    bool multipleOrdersAllowed, {
+    List<ProductOrder>? orders,
+  }) async {
     final navigator = Navigator.of(context);
     final orderCubit = context.read<OrderCubit>();
 
     if (multipleOrdersAllowed && orderName == OrderCubit.orderNamePlaceholder) {
-      final orderName = await showModalBottomSheet<String>(
-        context: context,
-        builder: (_) => TextInputBottomSheet(
-          currentValue: '',
-          displayName: context.translate.orderName,
-        ),
-      );
-      if (orderName != null) {
-        orderCubit.setOrderName(orderName);
-        navigator.pop();
+      if (orderCubit.state.isNotEmpty) {
+        final orderName = await showModalBottomSheet<String>(
+          context: context,
+          builder: (_) => TextInputBottomSheet(
+            currentValue: '',
+            displayName: context.translate.orderName,
+          ),
+        );
+        if (orderName != null) {
+          orderCubit.setOrderName(orderName);
+          navigator.pop();
+        }
       }
     } else if (multipleOrdersAllowed &&
         orderName != OrderCubit.orderNamePlaceholder) {
-      orderCubit.removeOrder(orderName);
-      navigator.pop();
+      if (orders == null) {
+        orderCubit.removeOrder(orderName);
+        navigator.pop();
+      } else {
+        for (final order in orders) {
+          for (int i = 1; i <= order.amount; i++) {
+            orderCubit.removeProduct(orderName, order.product);
+          }
+        }
+
+        if (orderCubit.getIsOrderEmpty(orderName)) {
+          orderCubit.removeOrder(orderName);
+          navigator.pop();
+        }
+      }
     } else {
-      orderCubit.clearOrders();
+      if (orders == null) {
+        orderCubit.clearOrders();
+      } else {
+        for (final order in orders) {
+          for (int i = 1; i <= order.amount; i++) {
+            orderCubit.removeProduct(orderName, order.product);
+          }
+        }
+      }
     }
   }
 
@@ -55,42 +81,50 @@ class ProductOrderView extends StatelessWidget {
                 ?.order ??
             [];
 
-        if (order.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(context.translate.noOrderYet),
-              ),
-            ),
-          );
-        }
-
-        final orderedProducts = order
-          ..sort(
-            (o1, o2) => o1.product.sortingKey - o2.product.sortingKey,
-          );
-        return Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: order.length,
-                itemBuilder: (context, index) => ProductOrderTile(
-                  orderName: orderName,
-                  order: orderedProducts[index],
-                  readOnly: readOnly,
+        return BlocBuilder<MultipleOrdersCubit, bool>(
+          builder: (context, multipleOrdersAllowed) {
+            return Column(
+              children: [
+                Expanded(
+                  child: OrderList(
+                      order: order,
+                      emptyHintText: context.translate.noOrderYet,
+                      readOnly: readOnly,
+                      onTap: (product) {
+                        context.read<OrderCubit>().removeProduct(
+                              orderName,
+                              product,
+                            );
+                      }),
                 ),
-              ),
-            ),
-            SumButton(
-              orderName: orderName,
-              onPressed: () => _onPressed(
-                context,
-                context.read<MultipleOrdersCubit>().state,
-              ),
-            ),
-          ],
+                if ((!multipleOrdersAllowed || orderName != OrderCubit.orderNamePlaceholder) && order.isNotEmpty)
+                  SubtotalButton(
+                    orderName: orderName,
+                    height: 50,
+                    onPressed: () async {
+                      final subtotalProducts =
+                          await Navigator.of(context).push<List<ProductOrder>>(
+                        MaterialPageRoute(
+                          builder: (ctx) =>
+                              SubtotalView(availableProducts: order),
+                        ),
+                      );
+                      if ((subtotalProducts?.isNotEmpty ?? false) && context.mounted) {
+                        _onPressed(context, multipleOrdersAllowed,
+                            orders: subtotalProducts);
+                      }
+                    },
+                  ),
+                SumButton(
+                  orderName: orderName,
+                  onPressed: () => _onPressed(
+                    context,
+                    context.read<MultipleOrdersCubit>().state,
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -98,15 +132,15 @@ class ProductOrderView extends StatelessWidget {
 }
 
 class ProductOrderTile extends StatelessWidget {
-  final String orderName;
   final ProductOrder order;
   final bool readOnly;
+  final VoidCallback? onTap;
 
   const ProductOrderTile({
     super.key,
-    required this.orderName,
     required this.order,
     this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -135,13 +169,7 @@ class ProductOrderTile extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
-      onTap: readOnly
-          ? null
-          : () {
-              context
-                  .read<OrderCubit>()
-                  .removeProduct(orderName, order.product);
-            },
+      onTap: readOnly ? null : onTap,
     );
   }
 }
@@ -216,11 +244,11 @@ class SumButton extends StatelessWidget {
                         BlocBuilder<OrderCubit, List<CustomerOrder>>(
                           builder: (context, orders) {
                             final order = orders
-                                .firstWhere(
+                                .firstWhereOrNull(
                                     (element) => element.name == orderName)
-                                .order;
+                                ?.order;
                             return Text(
-                              '${order.sum.toStringAsFixed(2)}€',
+                              '${(order?.sum.toStringAsFixed(2) ?? '0.00')}€',
                               style: textStyle,
                             );
                           },

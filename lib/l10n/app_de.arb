@@ -51,5 +51,10 @@
   "finishOrder": "Abschließen",
   "deleteOrder": "Bestellung löschen?",
   "deleteOrderDesc": "Möchtest du {orderName} wirklich löschen?",
-  "splitBill": "Rechnung teilen"
+  "splitBill": "Rechnung teilen",
+  "splitBillNoProducts": "Keine Produkte in Zwischensumme",
+  "splitBillConfirmTitle": "Rechnung teilen bestätigen",
+  "splitBillQuestion": "Produkte von Gesamtbestellung abziehen?",
+  "splitBillBackAndDelete": "Nein, zurück & löschen",
+  "splitBillConfirm": "Teilen"
 }
