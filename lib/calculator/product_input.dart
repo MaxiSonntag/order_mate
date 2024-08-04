@@ -8,7 +8,6 @@ import 'package:ordermate/menu/models/product.dart';
 import 'package:ordermate/menu/settings/cubits/input_columns_cubit.dart';
 import 'package:ordermate/menu/settings/cubits/multiple_orders_cubit.dart';
 import 'package:ordermate/order/order_cubit.dart';
-import 'package:ordermate/order_overview/order_overview_cubit.dart';
 import 'package:ordermate/utils/extensions.dart';
 
 class ProductInput extends StatelessWidget {
@@ -84,10 +83,10 @@ class ProductSelectionItem extends StatelessWidget {
   final Product product;
 
   const ProductSelectionItem({
-    Key? key,
+    super.key,
     required this.orderName,
     required this.product,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -143,11 +142,11 @@ class UnscrollableGrid extends StatelessWidget {
   final Widget Function(BuildContext, int) itemBuilder;
 
   const UnscrollableGrid({
-    Key? key,
+    super.key,
     this.crossAxisCount = 3,
     required this.itemCount,
     required this.itemBuilder,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

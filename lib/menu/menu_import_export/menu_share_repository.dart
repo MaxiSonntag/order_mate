@@ -17,11 +17,7 @@ class MenuShareRepository {
     final jsonString = jsonEncode(
       menuExport.toJson(),
     );
-    final resultFile = await fileRef.writeAsString(
-      jsonEncode(
-        menuExport.toJson(),
-      ),
-    );
+    final resultFile = await fileRef.writeAsString(jsonString);
 
     await Share.shareXFiles([XFile(resultFile.path)]);
     resultFile.deleteSync();

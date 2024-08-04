@@ -96,6 +96,14 @@ class OrderCubit extends HydratedCubit<List<CustomerOrder>> {
     emit(const []);
   }
 
+  bool getIsOrderEmpty(String orderName) {
+    final orderIdx = state.indexWhere((element) => element.name == orderName);
+    if (orderIdx != -1) {
+      return state[orderIdx].order.isEmpty;
+    }
+    throw 'Order $orderName does not exist';
+  }
+
   @override
   List<CustomerOrder>? fromJson(Map<String, dynamic> json) {
     return List<Map<String, dynamic>>.from(json[storageKey])
