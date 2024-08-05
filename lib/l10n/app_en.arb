@@ -86,5 +86,10 @@
       }
     }
   },
-  "splitBill": "Split bill"
+  "splitBill": "Split bill",
+  "splitBillNoProducts": "No products in subtotal",
+  "splitBillConfirmTitle": "Confirm split bill",
+  "splitBillQuestion": "Remove products from order?",
+  "splitBillBackAndDelete": "No, back & delete",
+  "splitBillConfirm": "Split"
 }
