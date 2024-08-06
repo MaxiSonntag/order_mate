@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +12,7 @@ import 'package:ordermate/menu/settings/cubits/input_columns_cubit.dart';
 import 'package:ordermate/menu/settings/cubits/multiple_orders_cubit.dart';
 import 'package:ordermate/order_overview/customer_order.dart';
 import 'package:ordermate/order_overview/order_overview_screen.dart';
+import 'package:ordermate/utils/extensions.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:ordermate/calculator/calculator_screen.dart';
@@ -117,7 +121,7 @@ class _OrderMateAppState extends State<OrderMateApp>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       getOpenFileUrl();
     }
@@ -166,14 +170,38 @@ class _OrderMateAppState extends State<OrderMateApp>
     String? url = await platform.invokeMethod('getOpenFileUrl');
 
     if (url != null) {
-      print('OPENED URL: $url');
-      final storagePermission =
-          await Permission.storage.request();
-      if (storagePermission.isGranted) {
+      if (url.isEmpty) {
+        _showImportErrorSnackbar();
+        return;
+      }
+
+      if (Platform.isAndroid) {
+        final deviceInfo = await DeviceInfoPlugin().androidInfo;
+        if (deviceInfo.version.sdkInt <= 32) {
+          final storagePermission = await Permission.storage.request();
+          if (storagePermission.isGranted && context.mounted) {
+            context.read<MenuImportCubit>().importFile(url);
+            _openAddSheet(context);
+          } else if (context.mounted) {
+            _showImportErrorSnackbar();
+          }
+          return;
+        }
+      }
+
+      if (context.mounted) {
         context.read<MenuImportCubit>().importFile(url);
         _openAddSheet(context);
       }
     }
+  }
+
+  _showImportErrorSnackbar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.translate.importPermissionErrorMessage),
+      ),
+    );
   }
 
   _openAddSheet(BuildContext context) async {

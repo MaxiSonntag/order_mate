@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ordermate/menu/models/menu.dart';
 import 'package:ordermate/menu/models/menu_export.dart';
@@ -14,12 +15,19 @@ class MenuImportCubit extends Cubit<MenuImportState> {
   MenuImportCubit() : super(MenuImportInitial());
 
   pickImportFile() async {
-    final pickedFile = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['json'],
-    );
+    FilePickerResult? pickedFile;
+    try {
+      pickedFile = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+    } on PlatformException catch (_) {
+      pickedFile = await FilePicker.platform.pickFiles(
+        type: FileType.any,
+      );
+    }
 
-    if (pickedFile == null) {
+    if (pickedFile == null || pickedFile.files.first.extension != 'json') {
       emit(MenuImportInitial());
       return;
     }
