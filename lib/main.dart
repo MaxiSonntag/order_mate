@@ -29,7 +29,8 @@ void main() async {
   HiveAdapters.registerAdapters();
 
   HydratedBloc.storage = await HydratedStorage.build(
-    storageDirectory: await getTemporaryDirectory(),
+    storageDirectory:
+        HydratedStorageDirectory((await getTemporaryDirectory()).path),
   );
 
   runApp(const OrderMate());
@@ -80,7 +81,7 @@ class OrderMate extends StatelessWidget with WidgetsBindingObserver {
           ),
           outlinedButtonTheme: const OutlinedButtonThemeData(
             style: ButtonStyle(
-              shape: MaterialStatePropertyAll(
+              shape: WidgetStatePropertyAll(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                     Radius.circular(8),

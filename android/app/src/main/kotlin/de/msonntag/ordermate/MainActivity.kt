@@ -3,24 +3,21 @@ package de.msonntag.ordermate
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
+import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import androidx.annotation.NonNull
-import com.mr.flutter.plugin.filepicker.FileUtils.getDataColumn
-import com.mr.flutter.plugin.filepicker.FileUtils.isDownloadsDocument
-import com.mr.flutter.plugin.filepicker.FileUtils.isExternalStorageDocument
-import com.mr.flutter.plugin.filepicker.FileUtils.isGooglePhotosUri
-import com.mr.flutter.plugin.filepicker.FileUtils.isMediaDocument
+import androidx.core.net.toUri
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 
 
-class MainActivity: FlutterActivity() {
+class MainActivity : FlutterActivity() {
     private val CHANNEL = "OPEN_OM_FILE"
 
     var openPath: String? = null
@@ -36,6 +33,7 @@ class MainActivity: FlutterActivity() {
                         openPath = null
                     }
                 }
+
                 else -> result.notImplemented()
             }
         }
@@ -63,7 +61,7 @@ class MainActivity: FlutterActivity() {
             val scheme = intent.data?.scheme
             val schemeSpecificPart = intent.data?.schemeSpecificPart
 
-            openPath = getPathFromUri(context, Uri.parse("$scheme:$schemeSpecificPart"))
+            openPath = getPathFromUri(context, "$scheme:$schemeSpecificPart".toUri())
         } else if ((intent?.clipData?.itemCount ?: 0) > 0) {
             val uri = intent?.clipData?.getItemAt(0)?.uri
             if (uri != null) {
@@ -76,7 +74,7 @@ class MainActivity: FlutterActivity() {
         // DocumentProvider
         if (DocumentsContract.isDocumentUri(context, uri)) {
             // ExternalStorageProvider
-            if (isExternalStorageDocument(uri)) {
+            if (uri.authority == "com.android.externalstorage.documents") {
                 val docId = DocumentsContract.getDocumentId(uri)
                 val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }
                     .toTypedArray()
@@ -87,30 +85,36 @@ class MainActivity: FlutterActivity() {
                 }
 
                 // TODO handle non-primary volumes
-            } else if (isDownloadsDocument(uri)) {
+            } else if (uri.authority == "com.android.providers.downloads.documents") {
                 try {
                     val id = DocumentsContract.getDocumentId(uri)
                     val contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), id.toLong()
+                        "content://downloads/public_downloads".toUri(), id.toLong()
                     )
 
                     return getDataColumn(context, contentUri, null, null)
                 } catch (e: Exception) {
                     return "";
                 }
-            } else if (isMediaDocument(uri)) {
+            } else if (uri.authority == "com.android.providers.media.documents") {
                 val docId = DocumentsContract.getDocumentId(uri)
                 val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }
                     .toTypedArray()
                 val type = split[0]
 
-                var contentUri: Uri? = null
-                if ("image" == type) {
-                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                } else if ("video" == type) {
-                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-                } else if ("audio" == type) {
-                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                var contentUri: Uri = uri
+                when (type) {
+                    "image" -> {
+                        contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                    }
+
+                    "video" -> {
+                        contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                    }
+
+                    "audio" -> {
+                        contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                    }
                 }
 
                 val selection = "_id=?"
@@ -123,13 +127,38 @@ class MainActivity: FlutterActivity() {
         } else if ("content".equals(uri.scheme, ignoreCase = true)) {
             // Return the remote address
 
-            if (isGooglePhotosUri(uri)) return uri.lastPathSegment
+            if (uri.authority == "com.google.android.apps.photos.content") return uri.lastPathSegment
 
             return getDataColumn(context, uri, null, null)
         } else if ("file".equals(uri.scheme, ignoreCase = true)) {
             return uri.path
         }
 
+        return null
+    }
+
+    private fun getDataColumn(
+        context: Context?, uri: Uri, selection: String?,
+        selectionArgs: Array<String>?
+    ): String? {
+        var cursor: Cursor? = null
+        val column = "_data"
+        val projection = arrayOf(
+            column
+        )
+
+        try {
+            cursor = context?.contentResolver?.query(
+                uri, projection, selection, selectionArgs,
+                null
+            )
+            if (cursor != null && cursor.moveToFirst()) {
+                val index = cursor.getColumnIndexOrThrow(column)
+                return cursor.getString(index)
+            }
+        } finally {
+            cursor?.close()
+        }
         return null
     }
 }
