@@ -57,4 +57,8 @@ class MenuImportCubit extends Cubit<MenuImportState> {
       emit(MenuImportFailure());
     }
   }
+
+  void reset() {
+    emit(MenuImportInitial());
+  }
 }

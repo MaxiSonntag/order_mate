@@ -448,8 +448,13 @@ class _EditProductSheetState extends State<EditProductSheet> {
                       focusNode: _priceNode,
                       controller: _priceCtrl,
                       inputFormatters: [
-                        FilteringTextInputFormatter.deny(RegExp(r',')),
+                        //FilteringTextInputFormatter.deny(RegExp(r',')),
                         DecimalTextInputFormatter(decimalRange: 2),
+                        TextInputFormatter.withFunction(
+                              (oldValue, newValue) => newValue.copyWith(
+                            text: newValue.text.replaceAll(',', '.'),
+                          ),
+                        ),
                       ],
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,

@@ -13,10 +13,14 @@ class MenuSelectionScreen extends StatelessWidget {
   const MenuSelectionScreen({super.key});
 
   _openAddSheet(BuildContext context) async {
+    final menuImportCubit = context.read<MenuImportCubit>();
+
     await showModalBottomSheet(
       context: context,
       builder: (context) => const AddMenuSheet(),
     );
+
+    menuImportCubit.reset();
   }
 
   @override
