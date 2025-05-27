@@ -206,9 +206,13 @@ class _OrderMateAppState extends State<OrderMateApp>
   }
 
   _openAddSheet(BuildContext context) async {
+    final importCubit = context.read<MenuImportCubit>();
+
     await showModalBottomSheet(
       context: context,
       builder: (context) => const AddMenuSheet(),
     );
+
+    importCubit.reset();
   }
 }
