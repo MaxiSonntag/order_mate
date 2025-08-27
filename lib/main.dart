@@ -4,8 +4,9 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:ordermate/hive/hive_registrar.g.dart';
 import 'package:ordermate/menu/menu_import_export/menu_import_cubit.dart';
 import 'package:ordermate/menu/menu_selection/menu_selection_screen.dart';
 import 'package:ordermate/menu/settings/cubits/input_columns_cubit.dart';
@@ -14,19 +15,18 @@ import 'package:ordermate/order_overview/customer_order.dart';
 import 'package:ordermate/order_overview/order_overview_screen.dart';
 import 'package:ordermate/utils/extensions.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
 import 'package:ordermate/calculator/calculator_screen.dart';
 import 'package:ordermate/menu/menu_selection/menu_selection_cubit.dart';
 import 'package:ordermate/menu/menus_cubit/menus_cubit.dart';
 import 'package:ordermate/order/order_cubit.dart';
-import 'package:ordermate/utils/hive_adapters.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
-  HiveAdapters.registerAdapters();
+  Hive.registerAdapters();
 
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory:

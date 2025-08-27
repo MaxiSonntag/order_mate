@@ -2,7 +2,7 @@ name: ordermate
 description: A new Flutter project.
 publish_to: 'none'
 
-version: 1.0.6+1
+version: 1.0.7+2
 
 environment:
   sdk: '>=3.0.3 <4.0.0'
@@ -13,36 +13,37 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  badges: ^3.1.1
+  badges: ^3.1.2
   collection: any
-  copy_with_extension: ^6.0.1
-  equatable: ^2.0.5
-  file_picker: ^10.1.9
+  copy_with_extension: ^9.1.0
+  equatable: ^2.0.7
+  file_picker: ^10.3.2
   flutter_bloc: ^9.1.1
-  flutter_colorpicker: ^1.0.3
-  freezed_annotation: ^3.0.0
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
-  hydrated_bloc: ^10.0.0
-  json_annotation: ^4.8.1
-  path_provider: ^2.1.3
-  share_plus: ^11.0.0
-  uuid: ^4.4.2
+  flutter_colorpicker: ^1.1.0
+  freezed_annotation: ^3.1.0
+  hive_ce: ^2.11.3
+  hive_ce_flutter: ^2.3.1
+  hydrated_bloc: ^10.1.1
+  json_annotation: ^4.9.0
+  path_provider: ^2.1.5
+  share_plus: ^11.1.0
+  uuid: ^4.5.1
   intl: any
-  permission_handler: ^12.0.0+1
+  permission_handler: ^12.0.1
   replay_bloc: ^0.3.0
-  device_info_plus: ^11.4.0
+  device_info_plus: ^11.5.0
+  dart_mappable: ^4.6.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  build_runner: ^2.4.11
-  copy_with_extension_gen: ^6.0.0
-  flutter_lints: ^5.0.0
-  freezed: ^3.0.0-0.0.dev
-  hive_generator: ^2.0.0
-  json_serializable: ^6.7.0
+  build_runner: ^2.7.0
+  copy_with_extension_gen: ^9.1.0
+  flutter_lints: ^6.0.0
+  hive_ce_generator: ^1.9.3
+  json_serializable: ^6.11.0
+  dart_mappable_builder: ^4.6.0
 
 flutter:
   uses-material-design: true

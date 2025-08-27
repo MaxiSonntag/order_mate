@@ -1,13 +1,13 @@
 import 'package:copy_with_extension/copy_with_extension.dart';
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:ordermate/order/product_order.dart';
 
-part 'customer_order.g.dart';
+part 'customer_order.mapper.dart';
 
-@JsonSerializable(explicitToJson: true)
-@CopyWith()
-class CustomerOrder extends Equatable {
+@MappableClass()
+class CustomerOrder with CustomerOrderMappable {
   final String name;
   final List<ProductOrder> order;
 
@@ -21,12 +21,7 @@ class CustomerOrder extends Equatable {
   }
 
   factory CustomerOrder.fromJson(Map<String, dynamic> json) =>
-      _$CustomerOrderFromJson(json);
-
-  Map<String, dynamic> toJson() => _$CustomerOrderToJson(this);
-
-  @override
-  List<Object?> get props => [name, order];
+      CustomerOrderMapper.fromJson(json);
 }
 
 enum CustomerOrderError {

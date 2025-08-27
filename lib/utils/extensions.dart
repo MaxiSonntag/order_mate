@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ordermate/l10n/app_localizations.dart';
 import 'package:ordermate/order/product_order.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 extension ColorX on Color {
   /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
