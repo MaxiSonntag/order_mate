@@ -110,21 +110,24 @@ class ProductSelectionItem extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        product.name,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                  child: FittedBox(
+                    fit: BoxFit.fitHeight,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          product.name,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      Text('(${product.unit})'),
-                    ],
+                        Text('(${product.unit})'),
+                      ],
+                    ),
                   ),
                 ),
               ),

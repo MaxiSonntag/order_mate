@@ -1,22 +1,16 @@
-import 'package:copy_with_extension/copy_with_extension.dart';
-import 'package:equatable/equatable.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:dart_mappable/dart_mappable.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:ordermate/menu/models/product.dart';
 
-part 'product_order.g.dart';
+part 'product_order.mapper.dart';
 
-@JsonSerializable()
-@CopyWith()
-class ProductOrder extends Equatable {
+@MappableClass()
+class ProductOrder extends HiveObject with ProductOrderMappable {
   final Product product;
   final int amount;
 
-  const ProductOrder(this.product, this.amount);
+  ProductOrder(this.product, this.amount);
 
-  factory ProductOrder.fromJson(Map<String, dynamic> json) => _$ProductOrderFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ProductOrderToJson(this);
-
-  @override
-  List<Object?> get props => [product, amount];
+  factory ProductOrder.fromJson(Map<String, dynamic> json) =>
+      ProductOrderMapper.fromJson(json);
 }

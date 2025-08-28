@@ -1,12 +1,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
     <application
         android:label="OrderMate"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:exported="true"
+        android:hardwareAccelerated="true"
+        android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
+            android:taskAffinity="de.msonntag.ordermate"
+            android:documentLaunchMode="never"
+            android:alwaysRetainTaskState="true"
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
@@ -19,16 +28,60 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <meta-data
+                android:name="io.flutter.embedding.android.SplashScreenDrawable"
+                android:resource="@drawable/launch_background" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Tap-to-open (VIEW) -->
+            <intent-filter android:priority="90">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- Preferred MIME matches -->
+                <data android:scheme="content" android:mimeType="application/vnd.ordermate" />
+                <data android:scheme="content" android:mimeType="application/json" />
+
+                <!-- Many providers label unknown as octet-stream -->
+                <data android:scheme="content" android:mimeType="application/octet-stream" />
+
+                <!-- Fallback by extension (no host; some providers omit/alter host) -->
+                <data android:scheme="content" android:pathPattern=".*\\.ordermate" android:mimeType="*/*" />
+                <data android:scheme="content" android:pathPattern=".*\\.json"      android:mimeType="*/*" />
+
+                <!-- Legacy file:// -->
+                <data android:scheme="file" android:pathPattern=".*\\.ordermate" />
+                <data android:scheme="file" android:pathPattern=".*\\.json" />
+            </intent-filter>
+
+            <!-- ACTION_SEND / SEND_MULTIPLE remain as you have them -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/vnd.ordermate" />
+                <data android:mimeType="application/json" />
+                <data android:mimeType="application/octet-stream" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
     </application>
     <!-- Required to query activities that can process text, see:
      https://developer.android.com/training/package-visibility and
@@ -41,4 +94,5 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+
 </manifest>

@@ -10,7 +10,7 @@ class MenuShareRepository {
   Future<void> shareMenu(Menu menu) async {
     final tempDirectory = await getTemporaryDirectory();
     final fileName =
-        '${menu.name}_${DateTime.now().millisecondsSinceEpoch}.json';
+        '${menu.name}_${DateTime.now().millisecondsSinceEpoch}.ordermate';
 
     final menuExport = MenuExport(1, DateTime.now(), menu);
     final fileRef = File('${tempDirectory.path}/$fileName')..createSync();

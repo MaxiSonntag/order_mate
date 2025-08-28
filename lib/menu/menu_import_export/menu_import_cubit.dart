@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ordermate/menu/models/menu.dart';
 import 'package:ordermate/menu/models/menu_export.dart';
@@ -14,19 +15,36 @@ class MenuImportCubit extends Cubit<MenuImportState> {
   MenuImportCubit() : super(MenuImportInitial());
 
   pickImportFile() async {
-    final pickedFile = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['json'],
-    );
+    FilePickerResult? pickedFile;
+    try {
+      pickedFile = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json', 'ordermate'],
+      );
+    } on PlatformException catch (_) {
+      pickedFile = await FilePicker.platform.pickFiles(
+        type: FileType.any,
+      );
+    }
 
-    if (pickedFile == null) {
+    if (pickedFile == null ||
+        (pickedFile.files.first.extension != 'json' &&
+            pickedFile.files.first.extension != 'ordermate')) {
       emit(MenuImportInitial());
       return;
     }
 
     emit(MenuImportRunning());
 
-    final fileRef = File(pickedFile.files.first.path!);
+    importFile(pickedFile.files.first.path!);
+  }
+
+  void importFile(String path) {
+    emit(MenuImportRunning());
+
+    final fixedPath =
+        path.replaceFirst('/document/raw:', '').replaceFirst('file://', '');
+    final fileRef = File(fixedPath);
     try {
       final fileContent = fileRef.readAsStringSync();
       final menuExport = MenuExport.fromJson(jsonDecode(fileContent));
@@ -37,8 +55,13 @@ class MenuImportCubit extends Cubit<MenuImportState> {
         products: menuExport.menu.products,
       );
       emit(MenuImported(saveMenu));
-    } catch (_) {
+    } catch (e) {
+      print(e);
       emit(MenuImportFailure());
     }
+  }
+
+  void reset() {
+    emit(MenuImportInitial());
   }
 }

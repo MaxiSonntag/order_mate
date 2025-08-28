@@ -56,5 +56,6 @@
   "splitBillConfirmTitle": "Rechnung teilen bestätigen",
   "splitBillQuestion": "Produkte von Gesamtbestellung abziehen?",
   "splitBillBackAndDelete": "Nein, zurück & löschen",
-  "splitBillConfirm": "Teilen"
+  "splitBillConfirm": "Teilen",
+  "importPermissionErrorMessage": "OrderMate hat keinen Zugriff auf die Datei – bitte erteile die Berechtigung oder verschiebe die Datein in einen lesbaren Ordner, der nicht auf einer externen Speicherkarte (SD-Karte) liegt (z.B. \"Downloads\")"
 }

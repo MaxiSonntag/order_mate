@@ -91,5 +91,6 @@
   "splitBillConfirmTitle": "Confirm split bill",
   "splitBillQuestion": "Remove products from order?",
   "splitBillBackAndDelete": "No, back & delete",
-  "splitBillConfirm": "Split"
+  "splitBillConfirm": "Split",
+  "importPermissionErrorMessage": "OrderMate can't access the file – please grant storage permissions or move the file into a readable folder that's not in an external memory card (SD-card), e.g. \"Downloads\""
 }

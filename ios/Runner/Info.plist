@@ -47,7 +47,81 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UTExportedTypeDeclarations</key>
+    <array>
+      <dict>
+        <key>UTTypeIdentifier</key>
+        <string>com.msonntag.ordermate</string>
+        <key>UTTypeDescription</key>
+        <string>OrderMate Document</string>
+        <key>UTTypeConformsTo</key>
+        <array>
+          <string>public.data</string>
+        </array>
+        <key>UTTypeTagSpecification</key>
+        <dict>
+          <key>public.filename-extension</key>
+          <array>
+            <string>ordermate</string>
+          </array>
+          <key>public.mime-type</key>
+          <string>application/vnd.ordermate</string>
+        </dict>
+      </dict>
+    </array>
+    <key>CFBundleDocumentTypes</key>
+    <array>
+      <dict>
+        <key>CFBundleTypeName</key>
+        <string>OrderMate Document</string>
+        <key>LSItemContentTypes</key>
+        <array>
+          <string>com.msonntag.ordermate</string>
+        </array>
+        <key>CFBundleTypeRole</key>
+        <string>Viewer</string>
+        <key>LSHandlerRank</key>
+        <string>Owner</string>
+      </dict>
+      <dict>
+        <key>CFBundleTypeName</key>
+        <string>JSON File</string>
+        <key>LSItemContentTypes</key>
+        <array>
+          <string>public.json</string>
+        </array>
+        <key>CFBundleTypeExtensions</key>
+        <array>
+          <string>json</string>
+        </array>
+        <key>CFBundleTypeRole</key>
+        <string>Viewer</string>
+        <key>LSHandlerRank</key>
+        <string>Alternate</string>
+      </dict>
+    </array>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<true/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>Default Configuration</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+					<key>Storyboard Name</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
 </dict>
 </plist>
