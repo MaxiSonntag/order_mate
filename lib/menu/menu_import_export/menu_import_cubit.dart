@@ -19,7 +19,7 @@ class MenuImportCubit extends Cubit<MenuImportState> {
     try {
       pickedFile = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['json'],
+        allowedExtensions: ['json', 'ordermate'],
       );
     } on PlatformException catch (_) {
       pickedFile = await FilePicker.platform.pickFiles(
@@ -27,7 +27,9 @@ class MenuImportCubit extends Cubit<MenuImportState> {
       );
     }
 
-    if (pickedFile == null || pickedFile.files.first.extension != 'json') {
+    if (pickedFile == null ||
+        (pickedFile.files.first.extension != 'json' &&
+            pickedFile.files.first.extension != 'ordermate')) {
       emit(MenuImportInitial());
       return;
     }
@@ -40,7 +42,8 @@ class MenuImportCubit extends Cubit<MenuImportState> {
   void importFile(String path) {
     emit(MenuImportRunning());
 
-    final fixedPath = path.replaceFirst('/document/raw:', '').replaceFirst('file://', '');
+    final fixedPath =
+        path.replaceFirst('/document/raw:', '').replaceFirst('file://', '');
     final fileRef = File(fixedPath);
     try {
       final fileContent = fileRef.readAsStringSync();

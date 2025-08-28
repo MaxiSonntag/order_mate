@@ -9,53 +9,56 @@ import Foundation
 
 @available(iOS 13.0, *)
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    
+
     var window: UIWindow?
     var openPath: String?
-    
-    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        
+
+    func scene(
+        _ scene: UIScene,
+        willConnectTo session: UISceneSession,
+        options connectionOptions: UIScene.ConnectionOptions
+    ) {
+
         guard let windowScene = scene as? UIWindowScene else { return }
-        
+
         window = UIWindow(windowScene: windowScene)
         let flutterEngine = FlutterEngine(name: "SceneDelegateEngine")
         flutterEngine.run()
         GeneratedPluginRegistrant.register(with: flutterEngine)
-        let controller = FlutterViewController.init(engine: flutterEngine, nibName: nil, bundle: nil)
-        
-        let channel = FlutterMethodChannel(name: "OPEN_OM_FILE", binaryMessenger: controller.binaryMessenger)
-        
-        channel.setMethodCallHandler({
-            [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
-            guard call.method == "getOpenFileUrl" else {
-                result(FlutterMethodNotImplemented)
-                return
-            }
-            
-            self?.getOpenFileUrl(result: result)
-        })
-        
+        let controller = FlutterViewController.init(
+            engine: flutterEngine,
+            nibName: nil,
+            bundle: nil
+        )
+
         window?.rootViewController = controller
         window?.makeKeyAndVisible()
-    }
-    
-    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        for urlContext in URLContexts {
-            let url = urlContext.url
-            openPath = url.absoluteString
-            print("Handle URL: (url)")
-        }
-    }
-    
-    private func getOpenFileUrl(result: @escaping FlutterResult) {
-        if let openPath {
-            result(openPath)
-            self.openPath = nil
+
+        if let vc = window?.rootViewController as? FlutterViewController {
+            FileOpenRouter.shared.attach(to: vc)
         } else {
-            result(FlutterError.init(code: "NO_PATH",
-                                     message: "No file path to open",                                    details: nil
-                                    )
-            )
+            DispatchQueue.main.async {
+                if let vc = self.window?.rootViewController
+                    as? FlutterViewController
+                {
+                    FileOpenRouter.shared.attach(to: vc)
+                }
+            }
         }
+
+        // Launch via URL into this scene
+        if let url = connectionOptions.urlContexts.first?.url {
+            print("SceneDelegate launch URL: \(url.path)")
+            FileOpenRouter.shared.handle(url: url)
+        }
+    }
+
+    func scene(
+        _ scene: UIScene,
+        openURLContexts URLContexts: Set<UIOpenURLContext>
+    ) {
+        guard let url = URLContexts.first?.url else { return }
+        print("SceneDelegate open URL: \(url.path)")
+        FileOpenRouter.shared.handle(url: url)
     }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -20,13 +21,16 @@ import 'package:ordermate/calculator/calculator_screen.dart';
 import 'package:ordermate/menu/menu_selection/menu_selection_cubit.dart';
 import 'package:ordermate/menu/menus_cubit/menus_cubit.dart';
 import 'package:ordermate/order/order_cubit.dart';
-import 'package:permission_handler/permission_handler.dart';
+
+import 'menu/menu_import_export/file_ingress.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
   Hive.registerAdapters();
+
+  FileIngress.init();
 
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory:
@@ -106,26 +110,35 @@ class OrderMateApp extends StatefulWidget {
 
 class _OrderMateAppState extends State<OrderMateApp>
     with WidgetsBindingObserver {
-  static const platform = MethodChannel('OPEN_OM_FILE');
+  final StreamController<List<String>> _filesStream = StreamController();
+  late final StreamSubscription<List<String>>? _filesStreamSubscription;
 
   @override
   void initState() {
     super.initState();
-    getOpenFileUrl();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final initialFiles = await FileIngress.getInitialFilesWithRetry();
+      if (initialFiles.isNotEmpty) {
+        _handleFiles(initialFiles);
+      }
+    });
+
+    _filesStreamSubscription = FileIngress.stream().listen(_handleFiles);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      FileIngress.refreshOnResumed(); // non-blocking
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
     WidgetsBinding.instance.removeObserver(this);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
-    if (state == AppLifecycleState.resumed) {
-      getOpenFileUrl();
-    }
+    _filesStreamSubscription?.cancel();
   }
 
   @override
@@ -167,7 +180,15 @@ class _OrderMateAppState extends State<OrderMateApp>
     );
   }
 
-  void getOpenFileUrl() async {
+  void _handleFiles(List<String> filePaths) {
+    print('FILE PATHS: $filePaths');
+    if (context.mounted) {
+      context.read<MenuImportCubit>().importFile(filePaths.first);
+      _openAddSheet(context);
+    }
+  }
+
+/*  void getOpenFileUrl() async {
     String? url = await platform.invokeMethod('getOpenFileUrl');
 
     if (url != null) {
@@ -195,7 +216,7 @@ class _OrderMateAppState extends State<OrderMateApp>
         _openAddSheet(context);
       }
     }
-  }
+  }*/
 
   _showImportErrorSnackbar() {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -205,7 +226,7 @@ class _OrderMateAppState extends State<OrderMateApp>
     );
   }
 
-  _openAddSheet(BuildContext context) async {
+  void _openAddSheet(BuildContext context) async {
     final importCubit = context.read<MenuImportCubit>();
 
     await showModalBottomSheet(
