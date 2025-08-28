@@ -6,11 +6,16 @@
         android:label="OrderMate"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
+        android:exported="true"
+        android:hardwareAccelerated="true"
         android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
+            android:taskAffinity="de.msonntag.ordermate"
+            android:documentLaunchMode="never"
+            android:alwaysRetainTaskState="true"
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
@@ -23,23 +28,43 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <meta-data
+                android:name="io.flutter.embedding.android.SplashScreenDrawable"
+                android:resource="@drawable/launch_background" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <intent-filter>
+            <!-- Tap-to-open (VIEW) -->
+            <intent-filter android:priority="90">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:host="*" />
-                <data android:mimeType="application/json" />
-                <data android:scheme="file" />
-                <data android:scheme="content" />
+
+                <!-- Preferred MIME matches -->
+                <data android:scheme="content" android:mimeType="application/vnd.ordermate" />
+                <data android:scheme="content" android:mimeType="application/json" />
+
+                <!-- Many providers label unknown as octet-stream -->
+                <data android:scheme="content" android:mimeType="application/octet-stream" />
+
+                <!-- Fallback by extension (no host; some providers omit/alter host) -->
+                <data android:scheme="content" android:pathPattern=".*\\.ordermate" android:mimeType="*/*" />
+                <data android:scheme="content" android:pathPattern=".*\\.json"      android:mimeType="*/*" />
+
+                <!-- Legacy file:// -->
+                <data android:scheme="file" android:pathPattern=".*\\.ordermate" />
+                <data android:scheme="file" android:pathPattern=".*\\.json" />
             </intent-filter>
+
+            <!-- ACTION_SEND / SEND_MULTIPLE remain as you have them -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/vnd.ordermate" />
                 <data android:mimeType="application/json" />
+                <data android:mimeType="application/octet-stream" />
+                <data android:mimeType="*/*" />
             </intent-filter>
 
         </activity>

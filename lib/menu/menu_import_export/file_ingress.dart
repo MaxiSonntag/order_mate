@@ -1,52 +1,83 @@
 // lib/file_ingress.dart
 import 'dart:async';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 
 class FileIngress {
-  static const MethodChannel _ch = MethodChannel('com.msonntag.ordermate/files');
-  static final StreamController<List<String>> _stream = StreamController<List<String>>.broadcast();
-  static bool _handlerInstalled = false;
+  // ---- Public API -----------------------------------------------------------
 
-  /// Call this once at startup, before runApp().
-  static void init() {
-    if (_handlerInstalled) return;
-    _handlerInstalled = true;
+  static void init({bool fetchInitial = true}) {
+    if (_initialized) return;
+    _initialized = true;
 
     _ch.setMethodCallHandler((call) async {
       if (call.method == 'onFileOpened') {
         final paths = (call.arguments as List).map((e) => e.toString()).toList();
-        _stream.add(paths);
+        _add(paths);
       }
     });
+
+    if (fetchInitial) {
+      _getInitialFilesWithRetry(); // fire & forget
+    }
   }
 
-  /// Exponential backoff retry for native readiness.
-  /// Tries getInitialFiles until success or retries exhausted.
-  static Future<List<String>> getInitialFilesWithRetry({
-    int maxAttempts = 6, // ~3.1s total with the default schedule
+  /// Subscribe whenever you want; you’ll get buffered events first, then live.
+  static Stream<List<String>> stream() {
+    late StreamController<List<String>> ctrl;
+    StreamSubscription<List<String>>? liveSub;
+
+    ctrl = StreamController<List<String>>(
+      onListen: () async {
+        // 1) Replay buffer
+        if (_buffer.isNotEmpty) {
+          for (final evt in _buffer) {
+            await Future<void>.delayed(Duration.zero);
+            if (!ctrl.isClosed) ctrl.add(List<String>.from(evt));
+          }
+        }
+        // 2) Forward live events
+        liveSub = _live.stream.listen((evt) {
+          if (!ctrl.isClosed) ctrl.add(evt);
+        });
+      },
+      onCancel: () async {
+        await liveSub?.cancel();
+      },
+    );
+
+    return ctrl.stream;
+  }
+
+  static Future<List<String>> next() => stream().first;
+
+  // ---- Internals ------------------------------------------------------------
+
+  static const _ch = MethodChannel('com.msonntag.ordermate/files');
+  static bool _initialized = false;
+
+  static final List<List<String>> _buffer = <List<String>>[];
+  static final StreamController<List<String>> _live =
+  StreamController<List<String>>.broadcast();
+
+  static void _add(List<String> paths) {
+    if (paths.isEmpty) return;
+    _buffer.add(List<String>.from(paths));
+    _live.add(paths);
+  }
+
+  static Future<void> _getInitialFilesWithRetry({
+    int maxAttempts = 6,
     List<int> delaysMs = const [100, 200, 400, 800, 1600, 3200],
   }) async {
-    assert(delaysMs.length >= maxAttempts, 'delaysMs must have >= maxAttempts entries');
-
-    for (int attempt = 0; attempt < maxAttempts; attempt++) {
+    for (var i = 0; i < maxAttempts; i++) {
       try {
-        // IMPORTANT: only call after setMethodCallHandler has been installed
         final res = await _ch.invokeMethod<List<dynamic>>('getInitialFiles');
-        return (res ?? const []).cast<String>();
+        final initial = (res ?? const []).map((e) => e.toString()).toList();
+        if (initial.isNotEmpty) _add(initial);
+        return;
       } on MissingPluginException {
-        // Native channel not ready yet — wait and try again
-        await Future.delayed(Duration(milliseconds: delaysMs[attempt]));
+        await Future.delayed(Duration(milliseconds: delaysMs[i]));
       }
     }
-    return const [];
-  }
-
-  static Stream<List<String>> stream() => _stream.stream;
-
-  /// Optional: call this on app resume to catch anything queued while Flutter was suspended.
-  static Future<void> refreshOnResumed() async {
-    final more = await getInitialFilesWithRetry(maxAttempts: 3, delaysMs: const [100, 200, 400]);
-    if (more.isNotEmpty) _stream.add(more);
   }
 }

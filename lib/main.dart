@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
@@ -14,7 +11,6 @@ import 'package:ordermate/menu/settings/cubits/input_columns_cubit.dart';
 import 'package:ordermate/menu/settings/cubits/multiple_orders_cubit.dart';
 import 'package:ordermate/order_overview/customer_order.dart';
 import 'package:ordermate/order_overview/order_overview_screen.dart';
-import 'package:ordermate/utils/extensions.dart';
 import 'package:path_provider/path_provider.dart';
 import 'l10n/app_localizations.dart';
 import 'package:ordermate/calculator/calculator_screen.dart';
@@ -30,7 +26,7 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapters();
 
-  FileIngress.init();
+  FileIngress.init(fetchInitial: true);
 
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory:
@@ -110,28 +106,14 @@ class OrderMateApp extends StatefulWidget {
 
 class _OrderMateAppState extends State<OrderMateApp>
     with WidgetsBindingObserver {
-  final StreamController<List<String>> _filesStream = StreamController();
   late final StreamSubscription<List<String>>? _filesStreamSubscription;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final initialFiles = await FileIngress.getInitialFilesWithRetry();
-      if (initialFiles.isNotEmpty) {
-        _handleFiles(initialFiles);
-      }
-    });
 
     _filesStreamSubscription = FileIngress.stream().listen(_handleFiles);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      FileIngress.refreshOnResumed(); // non-blocking
-    }
   }
 
   @override
@@ -181,49 +163,10 @@ class _OrderMateAppState extends State<OrderMateApp>
   }
 
   void _handleFiles(List<String> filePaths) {
-    print('FILE PATHS: $filePaths');
     if (context.mounted) {
       context.read<MenuImportCubit>().importFile(filePaths.first);
       _openAddSheet(context);
     }
-  }
-
-/*  void getOpenFileUrl() async {
-    String? url = await platform.invokeMethod('getOpenFileUrl');
-
-    if (url != null) {
-      if (url.isEmpty) {
-        _showImportErrorSnackbar();
-        return;
-      }
-
-      if (Platform.isAndroid) {
-        final deviceInfo = await DeviceInfoPlugin().androidInfo;
-        if (deviceInfo.version.sdkInt <= 32) {
-          final storagePermission = await Permission.storage.request();
-          if (storagePermission.isGranted && context.mounted) {
-            context.read<MenuImportCubit>().importFile(url);
-            _openAddSheet(context);
-          } else if (context.mounted) {
-            _showImportErrorSnackbar();
-          }
-          return;
-        }
-      }
-
-      if (context.mounted) {
-        context.read<MenuImportCubit>().importFile(url);
-        _openAddSheet(context);
-      }
-    }
-  }*/
-
-  _showImportErrorSnackbar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.translate.importPermissionErrorMessage),
-      ),
-    );
   }
 
   void _openAddSheet(BuildContext context) async {

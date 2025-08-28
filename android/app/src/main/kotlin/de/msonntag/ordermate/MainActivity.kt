@@ -1,164 +1,143 @@
 package de.msonntag.ordermate
 
-import android.content.ContentUris
-import android.content.Context
 import android.content.Intent
-import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
-import android.provider.DocumentsContract
-import android.provider.MediaStore
-import androidx.annotation.NonNull
-import androidx.core.net.toUri
+import android.os.Handler
+import android.os.Looper
+import android.provider.OpenableColumns
+import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugins.GeneratedPluginRegistrant
-
+import java.io.File
+import java.io.FileOutputStream
+import java.util.UUID
+import java.util.concurrent.Executors
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "OPEN_OM_FILE"
 
-    var openPath: String? = null
-    override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
-        GeneratedPluginRegistrant.registerWith(flutterEngine)
-        val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
-        handleOpenFileUrl(intent);
-        channel.setMethodCallHandler { call, result ->
-            when (call.method) {
-                "getOpenFileUrl" -> {
-                    result.success(openPath)
-                    if (openPath != null) {
-                        openPath = null
-                    }
-                }
+    private val channelName = "com.msonntag.ordermate/files"
+    private lateinit var channel: MethodChannel
+    private val pending = mutableListOf<String>()
 
-                else -> result.notImplemented()
-            }
-        }
-    }
+    private val ioExecutor = Executors.newSingleThreadExecutor()
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        when {
-            intent?.action == Intent.ACTION_SEND -> {
-                if ("application/json" == intent.type) {
-                    handleOpenFileUrl(intent)
+        // Do not do heavy work here
+    }
+
+    override fun configureFlutterEngine(engine: FlutterEngine) {
+        super.configureFlutterEngine(engine)
+
+        channel = MethodChannel(engine.dartExecutor.binaryMessenger, channelName)
+        channel.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "getInitialFiles" -> {
+                    val out = pending.toList()
+                    pending.clear()
+                    result.success(out)
                 }
+                else -> result.notImplemented()
             }
         }
+
+        // Handle intent that launched the app (cold start)
+        handleIntent(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        handleOpenFileUrl(intent)
+        setIntent(intent)
+        handleIntent(intent)
     }
 
-    private fun handleOpenFileUrl(intent: Intent?) {
-        val path = intent?.data?.path
-        if (path != null) {
-            val scheme = intent.data?.scheme
-            val schemeSpecificPart = intent.data?.schemeSpecificPart
+    private fun handleIntent(intent: Intent?) {
+        if (intent == null) return
+        Log.d("MainActivity", "handleIntent: action=${intent.action} data=${intent.data} clip=${intent.clipData?.itemCount}")
 
-            openPath = getPathFromUri(context, "$scheme:$schemeSpecificPart".toUri())
-        } else if ((intent?.clipData?.itemCount ?: 0) > 0) {
-            val uri = intent?.clipData?.getItemAt(0)?.uri
-            if (uri != null) {
-                openPath = getPathFromUri(context, uri)
+        when (intent.action) {
+            Intent.ACTION_VIEW -> {
+                val uris = mutableListOf<Uri>()
+                intent.data?.let { uris.add(it) }
+                extractClipDataUris(intent)?.let { uris.addAll(it) }
+                uris.forEach { processUriAsync(it, intent.flags) }
+            }
+            Intent.ACTION_SEND -> {
+                extractClipDataUris(intent)?.forEach { processUriAsync(it, intent.flags) }
+                intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)?.let { processUriAsync(it, intent.flags) }
+            }
+            Intent.ACTION_SEND_MULTIPLE -> {
+                extractClipDataUris(intent)?.forEach { processUriAsync(it, intent.flags) }
+                intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)?.forEach { processUriAsync(it, intent.flags) }
             }
         }
     }
 
-    private fun getPathFromUri(context: Context?, uri: Uri): String? {
-        // DocumentProvider
-        if (DocumentsContract.isDocumentUri(context, uri)) {
-            // ExternalStorageProvider
-            if (uri.authority == "com.android.externalstorage.documents") {
-                val docId = DocumentsContract.getDocumentId(uri)
-                val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }
-                    .toTypedArray()
-                val type = split[0]
+    private fun extractClipDataUris(intent: Intent): List<Uri>? {
+        val cd = intent.clipData ?: return null
+        val list = ArrayList<Uri>(cd.itemCount)
+        for (i in 0 until cd.itemCount) {
+            cd.getItemAt(i)?.uri?.let { list.add(it) }
+        }
+        return list
+    }
 
-                if ("primary".equals(type, ignoreCase = true)) {
-                    return Environment.getExternalStorageDirectory().toString() + "/" + split[1]
-                }
+    private fun processUriAsync(uri: Uri, flags: Int) {
+        ioExecutor.execute {
+            val local = copyToInbox(uri, flags)
+            if (local != null) {
+                mainHandler.post { emit(listOf(local)) }
+            }
+        }
+    }
 
-                // TODO handle non-primary volumes
-            } else if (uri.authority == "com.android.providers.downloads.documents") {
+    private fun emit(paths: List<String>) {
+        if (this::channel.isInitialized) {
+            channel.invokeMethod("onFileOpened", paths)
+            Log.d("MainActivity", "Emitted to Dart: $paths")
+        } else {
+            pending.addAll(paths)
+            Log.d("MainActivity", "Queued: $paths")
+        }
+    }
+
+    /** Copy the incoming Uri into app-internal storage (filesDir/inbox). */
+    private fun copyToInbox(uri: Uri, flags: Int): String? {
+        return try {
+            if ((flags and Intent.FLAG_GRANT_READ_URI_PERMISSION) != 0) {
                 try {
-                    val id = DocumentsContract.getDocumentId(uri)
-                    val contentUri = ContentUris.withAppendedId(
-                        "content://downloads/public_downloads".toUri(), id.toLong()
+                    contentResolver.takePersistableUriPermission(
+                        uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
-
-                    return getDataColumn(context, contentUri, null, null)
-                } catch (e: Exception) {
-                    return "";
+                } catch (_: SecurityException) {
+                    // Not persistable, ignore
                 }
-            } else if (uri.authority == "com.android.providers.media.documents") {
-                val docId = DocumentsContract.getDocumentId(uri)
-                val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }
-                    .toTypedArray()
-                val type = split[0]
-
-                var contentUri: Uri = uri
-                when (type) {
-                    "image" -> {
-                        contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                    }
-
-                    "video" -> {
-                        contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-                    }
-
-                    "audio" -> {
-                        contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                    }
-                }
-
-                val selection = "_id=?"
-                val selectionArgs = arrayOf(
-                    split[1]
-                )
-
-                return getDataColumn(context, contentUri, selection, selectionArgs)
             }
-        } else if ("content".equals(uri.scheme, ignoreCase = true)) {
-            // Return the remote address
 
-            if (uri.authority == "com.google.android.apps.photos.content") return uri.lastPathSegment
+            val displayName = queryDisplayName(uri) ?: (uri.lastPathSegment ?: "file")
+            val inboxDir = File(filesDir, "inbox").apply { mkdirs() }
+            val dest = File(inboxDir, "${UUID.randomUUID()}_$displayName")
 
-            return getDataColumn(context, uri, null, null)
-        } else if ("file".equals(uri.scheme, ignoreCase = true)) {
-            return uri.path
+            contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(dest).use { output -> input.copyTo(output) }
+            } ?: return null
+
+            dest.absolutePath
+        } catch (e: Exception) {
+            Log.e("MainActivity", "copyToInbox failed for $uri", e)
+            null
         }
-
-        return null
     }
 
-    private fun getDataColumn(
-        context: Context?, uri: Uri, selection: String?,
-        selectionArgs: Array<String>?
-    ): String? {
-        var cursor: Cursor? = null
-        val column = "_data"
-        val projection = arrayOf(
-            column
-        )
-
-        try {
-            cursor = context?.contentResolver?.query(
-                uri, projection, selection, selectionArgs,
-                null
-            )
-            if (cursor != null && cursor.moveToFirst()) {
-                val index = cursor.getColumnIndexOrThrow(column)
-                return cursor.getString(index)
-            }
-        } finally {
-            cursor?.close()
+    private fun queryDisplayName(uri: Uri): String? {
+        return try {
+            contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                ?.use { c -> if (c.moveToFirst()) c.getString(0) else null }
+        } catch (_: Exception) {
+            null
         }
-        return null
     }
 }
