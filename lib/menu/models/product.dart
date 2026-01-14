@@ -14,6 +14,7 @@ class Product with ProductMappable {
     required this.price,
     required this.sortingKey,
     required this.hexColor,
+    this.isSectionEnd = false,
   });
 
   final String name;
@@ -21,6 +22,7 @@ class Product with ProductMappable {
   final num price;
   final int sortingKey;
   final String hexColor;
+  final bool isSectionEnd;
 
   Color get color => ColorX.fromHex(hexColor);
 

@@ -201,5 +201,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importPermissionErrorMessage =>
-      'OrderMate can\'t access the file – please grant storage permissions or move the file into a readable folder that\'s not in an external memory card (SD-card), e.g. \"Downloads\"';
+      'OrderMate can\'t access the file – please grant storage permissions or move the file into a readable folder that\'s not in an external memory card (SD-card), e.g. \'Downloads\'';
+
+  @override
+  String get insertDividerBelowTitle => 'Divider after this product';
+
+  @override
+  String get insertDividerBelowDesc =>
+      'This creates \'sections\' in the product selection';
 }

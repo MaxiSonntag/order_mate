@@ -114,7 +114,7 @@ class SubtotalView extends StatelessWidget {
                 SubtotalButton(
                   height: 80,
                   onPressed: () => Navigator.of(context).maybePop(),
-                )
+                ),
               ],
             ),
           ),
@@ -190,32 +190,40 @@ class SubtotalButton extends StatelessWidget {
 
     return InkWell(
       onTap: onPressed,
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: Container(
-              height:
-                  (useSafeArea ? MediaQuery.of(context).padding.bottom : 0) +
-                      (height ?? 40),
-              color: Colors.orange,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      context.translate.splitBill.toUpperCase(),
-                      style: textStyle,
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: height ?? 40,
+                  color: Colors.orange,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          context.translate.splitBill.toUpperCase(),
+                          style: textStyle,
+                        ),
+                        Text(
+                          '${subtotalOrder.sum.toStringAsFixed(2)}€',
+                          style: textStyle,
+                        ),
+                      ],
                     ),
-                    Text(
-                      '${subtotalOrder.sum.toStringAsFixed(2)}€',
-                      style: textStyle,
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
+          if (useSafeArea)
+            Container(
+              height: MediaQuery.viewPaddingOf(context).bottom,
+              color: Colors.orange,
+            ),
         ],
       ),
     );

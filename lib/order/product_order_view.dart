@@ -20,7 +20,7 @@ class ProductOrderView extends StatelessWidget {
     super.key,
   });
 
-  _onPressed(
+  Future<void> _onPressed(
     BuildContext context,
     bool multipleOrdersAllowed, {
     List<ProductOrder>? orders,
@@ -149,24 +149,27 @@ class ProductOrderTile extends StatelessWidget {
       tileColor: order.product.color,
       leading: Text(
         '${order.amount}',
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
+          color: order.product.color.foregroundTextColor,
         ),
       ),
       title: Text(
         '${order.product.name} (${order.product.unit})',
         maxLines: 2,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
+          color: order.product.color.foregroundTextColor,
         ),
       ),
       trailing: Text(
         '${(order.amount * order.product.price).toStringAsFixed(2)}€',
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
+          color: order.product.color.foregroundTextColor,
         ),
       ),
       onTap: readOnly ? null : onTap,

@@ -1,5 +1,7 @@
+import 'dart:math' as Math;
 import 'package:flutter/material.dart';
 import 'package:ordermate/l10n/app_localizations.dart';
+import 'package:ordermate/menu/models/product.dart';
 import 'package:ordermate/order/product_order.dart';
 
 extension ColorX on Color {
@@ -19,8 +21,30 @@ extension ColorX on Color {
 
   String get hexString => '#${value.toRadixString(16)}';
 
-  Color get foregroundTextColor =>
-      computeLuminance() > 0.5 ? Colors.black : Colors.white;
+  /// Returns either Colors.black or Colors.white, whichever is more readable
+  /// on top of this color.
+  Color get foregroundTextColor {
+    // Relative luminance per WCAG (sRGB -> linear -> luminance)
+    double toLinear(int c) {
+      final v = c / 255.0;
+      return (v <= 0.03928)
+          ? (v / 12.92)
+          : Math.pow((v + 0.055) / 1.055, 2.4).toDouble();
+    }
+
+    final r = toLinear(red);
+    final g = toLinear(green);
+    final b = toLinear(blue);
+    final luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+    // Contrast ratio with white/black (WCAG)
+    final contrastWithWhite = (1.0 + 0.05) / (luminance + 0.05);
+    final contrastWithBlack = (luminance + 0.05) / (0.0 + 0.05);
+
+    return (contrastWithWhite >= contrastWithBlack)
+        ? Colors.white
+        : Colors.black;
+  }
 }
 
 extension OrdersSum on List<ProductOrder> {
@@ -35,4 +59,31 @@ extension OrdersSum on List<ProductOrder> {
 
 extension Translate on BuildContext {
   AppLocalizations get translate => AppLocalizations.of(this)!;
+}
+
+extension ProductListX on List<Product> {
+  List<int> get displaySectionEndIndexes => asMap()
+      .entries
+      .where((productEntry) => productEntry.value.isSectionEnd)
+      .map((productEntry) => productEntry.key)
+      .toList();
+
+  int get displaySectionCount => displaySectionEndIndexes.length + 1;
+
+  List<Product> getSectionSublist(int sectionIdx) {
+    if (displaySectionCount == 1) {
+      return this;
+    }
+
+    if (sectionIdx == 0) {
+      return sublist(0, displaySectionEndIndexes.first+1);
+    }
+
+    if (sectionIdx+1 == displaySectionCount) {
+      return sublist(displaySectionEndIndexes[sectionIdx-1]+1, length);
+    }
+
+    return sublist(displaySectionEndIndexes[sectionIdx-1]+1,
+        displaySectionEndIndexes[sectionIdx]+1);
+  }
 }

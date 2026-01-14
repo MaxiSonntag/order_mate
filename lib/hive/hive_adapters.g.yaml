@@ -5,7 +5,7 @@ nextTypeId: 3
 types:
   Product:
     typeId: 1
-    nextIndex: 5
+    nextIndex: 6
     fields:
       name:
         index: 0
@@ -17,6 +17,8 @@ types:
         index: 3
       hexColor:
         index: 4
+      isSectionEnd:
+        index: 5
   Menu:
     typeId: 2
     nextIndex: 4

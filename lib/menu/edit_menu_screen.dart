@@ -9,6 +9,7 @@ import 'package:ordermate/components/outlined_icon_button.dart';
 import 'package:ordermate/menu/menus_cubit/menus_cubit.dart';
 import 'package:ordermate/menu/models/menu.dart';
 import 'package:ordermate/menu/models/product.dart';
+import 'package:ordermate/components/dotted_divider.dart';
 import 'package:ordermate/utils/extensions.dart';
 import 'package:ordermate/utils/input_formatters.dart';
 import 'package:ordermate/utils/validators.dart';
@@ -34,7 +35,7 @@ class EditMenuScreen extends StatelessWidget {
 
   bool get isEdit => menu != null;
 
-  _saveMenu(BuildContext context) async {
+  Future<void> _saveMenu(BuildContext context) async {
     if (_formKey.currentState?.validate() ?? false) {
       final navigator = Navigator.of(context);
 
@@ -116,6 +117,9 @@ class EditMenuScreen extends StatelessWidget {
                         return null;
                       },
                     ),
+                    SizedBox(
+                      height: MediaQuery.of(context).viewPadding.bottom,
+                    )
                   ],
                 ),
               ),
@@ -130,15 +134,11 @@ class EditMenuScreen extends StatelessWidget {
 class ProductsFormField extends FormField<List<Product>> {
   ProductsFormField({
     super.key,
-    FormFieldSetter<List<Product>>? onSaved,
-    FormFieldValidator<List<Product>>? validator,
-    List<Product>? initialValue = const [],
-    AutovalidateMode? autovalidateMode,
+    super.onSaved,
+    super.validator,
+    super.initialValue = const [],
+    super.autovalidateMode,
   }) : super(
-          onSaved: onSaved,
-          validator: validator,
-          initialValue: initialValue,
-          autovalidateMode: autovalidateMode,
           builder: (FormFieldState<List<Product>> state) {
             List<Product> sortedProducts = List<Product>.from(state.value ?? [])
               ..sort((p1, p2) => p1.sortingKey - p2.sortingKey);
@@ -153,7 +153,7 @@ class ProductsFormField extends FormField<List<Product>> {
                       color: Theme.of(state.context).colorScheme.error,
                     ),
                   ),
-                for (final product in sortedProducts)
+                for (final product in sortedProducts) ...[
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: Container(
@@ -179,6 +179,8 @@ class ProductsFormField extends FormField<List<Product>> {
                       },
                     ),
                   ),
+                  if (product.isSectionEnd) DottedDivider(color: Colors.grey)
+                ],
                 Row(
                   children: [
                     Expanded(
@@ -195,7 +197,7 @@ class ProductsFormField extends FormField<List<Product>> {
           },
         );
 
-  static _openActionsSheet(
+  static Future<void> _openActionsSheet(
     FormFieldState<List<Product>> state, {
     required Product product,
     VoidCallback? onDelete,
@@ -229,7 +231,7 @@ class ProductsFormField extends FormField<List<Product>> {
     }
   }
 
-  static _openEditProductBottomSheet(
+  static Future<void> _openEditProductBottomSheet(
     FormFieldState<List<Product>> state, {
     Product? product,
   }) async {
@@ -358,9 +360,9 @@ class _EditProductSheetState extends State<EditProductSheet> {
   late final TextEditingController _priceCtrl;
   late final TextEditingController _unitCtrl;
   late final ValueNotifier<Color> _currentColor;
+  late final ValueNotifier<bool> _isSectionEnd;
 
   bool get isEdit => widget.product != null;
-
 
   @override
   void initState() {
@@ -377,7 +379,9 @@ class _EditProductSheetState extends State<EditProductSheet> {
     _currentColor = ValueNotifier(
       widget.product?.color ?? Colors.green,
     );
-
+    _isSectionEnd = ValueNotifier(
+      widget.product?.isSectionEnd ?? false,
+    );
   }
 
   @override
@@ -451,13 +455,14 @@ class _EditProductSheetState extends State<EditProductSheet> {
                         //FilteringTextInputFormatter.deny(RegExp(r',')),
                         DecimalTextInputFormatter(decimalRange: 2),
                         TextInputFormatter.withFunction(
-                              (oldValue, newValue) => newValue.copyWith(
+                          (oldValue, newValue) => newValue.copyWith(
                             text: newValue.text.replaceAll(',', '.'),
                           ),
                         ),
                       ],
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
+                        signed: true,
                       ),
                       maxLines: 1,
                       autovalidateMode: autovalidate,
@@ -482,6 +487,19 @@ class _EditProductSheetState extends State<EditProductSheet> {
                         }
                       },
                     ),
+                    const SizedBox(height: 8.0),
+                    ValueListenableBuilder(
+                        valueListenable: _isSectionEnd,
+                        builder: (context, isSectionEnd, _) {
+                          return SwitchListTile(
+                            title: Text(context.translate.insertDividerBelowTitle),
+                            subtitle: Text(context.translate.insertDividerBelowDesc),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                            value: isSectionEnd,
+                            onChanged: (isSectionEnd) =>
+                                _isSectionEnd.value = isSectionEnd,
+                          );
+                        }),
                     const SizedBox(height: 12.0),
                     Row(
                       children: [
@@ -510,6 +528,7 @@ class _EditProductSheetState extends State<EditProductSheet> {
       final unit = _unitCtrl.text;
       final price = num.parse(_priceCtrl.text);
       final color = _currentColor.value;
+      final isSectionEnd = _isSectionEnd.value;
 
       newProduct = Product(
         name: name,
@@ -517,6 +536,7 @@ class _EditProductSheetState extends State<EditProductSheet> {
         price: price,
         sortingKey: widget.product?.sortingKey ?? -1,
         hexColor: color.hexString,
+        isSectionEnd: isSectionEnd,
       );
       Navigator.of(context).pop(newProduct);
     } else {

@@ -449,8 +449,20 @@ abstract class AppLocalizations {
   /// No description provided for @importPermissionErrorMessage.
   ///
   /// In en, this message translates to:
-  /// **'OrderMate can\'t access the file – please grant storage permissions or move the file into a readable folder that\'s not in an external memory card (SD-card), e.g. \"Downloads\"'**
+  /// **'OrderMate can\'t access the file – please grant storage permissions or move the file into a readable folder that\'s not in an external memory card (SD-card), e.g. \'Downloads\''**
   String get importPermissionErrorMessage;
+
+  /// No description provided for @insertDividerBelowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Divider after this product'**
+  String get insertDividerBelowTitle;
+
+  /// No description provided for @insertDividerBelowDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'This creates \'sections\' in the product selection'**
+  String get insertDividerBelowDesc;
 }
 
 class _AppLocalizationsDelegate

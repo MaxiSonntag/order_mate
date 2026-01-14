@@ -4,7 +4,7 @@ import 'package:ordermate/menu/models/menu.dart';
 class MenuSelectionCubit extends HydratedCubit<Menu?> {
   MenuSelectionCubit() : super(null);
 
-  setSelectedMenu(Menu menu) {
+  void setSelectedMenu(Menu menu) {
     emit(menu);
   }
 
