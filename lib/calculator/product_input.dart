@@ -84,15 +84,6 @@ class ProductInput extends StatelessWidget {
                 ]
               ],
             );
-            return GridView.count(
-              crossAxisCount: inputColumnCount,
-              childAspectRatio: inputColumnCount.toDouble(),
-              physics: const ClampingScrollPhysics(),
-              children: [
-                for (final product in menu.products)
-                  ProductSelectionItem(orderName: orderName, product: product),
-              ],
-            );
           },
         );
       },

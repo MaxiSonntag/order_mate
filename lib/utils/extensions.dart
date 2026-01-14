@@ -1,4 +1,4 @@
-import 'dart:math' as Math;
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:ordermate/l10n/app_localizations.dart';
 import 'package:ordermate/menu/models/product.dart';
@@ -29,7 +29,7 @@ extension ColorX on Color {
       final v = c / 255.0;
       return (v <= 0.03928)
           ? (v / 12.92)
-          : Math.pow((v + 0.055) / 1.055, 2.4).toDouble();
+          : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
     }
 
     final r = toLinear(red);

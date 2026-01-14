@@ -92,7 +92,7 @@ class OrderCubit extends HydratedCubit<List<CustomerOrder>> {
     }
   }
 
-  clearOrders() {
+  void clearOrders() {
     emit(const []);
   }
 

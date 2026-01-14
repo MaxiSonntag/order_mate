@@ -55,7 +55,7 @@ class OrderOverviewScreen extends StatelessWidget {
     );
   }
 
-  _openOrderActionsSheet(BuildContext context, CustomerOrder order) async {
+  Future<void> _openOrderActionsSheet(BuildContext context, CustomerOrder order) async {
     final finishActionColor = Theme.of(context).colorScheme.primary;
 
     showModalBottomSheet(
@@ -86,7 +86,7 @@ class OrderOverviewScreen extends StatelessWidget {
     );
   }
 
-  _openFinishOrderScreen(BuildContext context, CustomerOrder order) {
+  void _openFinishOrderScreen(BuildContext context, CustomerOrder order) {
     Navigator.of(context).pop();
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -112,7 +112,7 @@ class OrderOverviewScreen extends StatelessWidget {
     );
   }
 
-  _deleteOrder(BuildContext context, CustomerOrder order) async {
+  Future<void> _deleteOrder(BuildContext context, CustomerOrder order) async {
     final orderCubit = context.read<OrderCubit>();
     final navigator = Navigator.of(context);
 

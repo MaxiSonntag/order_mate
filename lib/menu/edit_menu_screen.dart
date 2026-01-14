@@ -548,15 +548,11 @@ class _EditProductSheetState extends State<EditProductSheet> {
 class ColorPickerFormField extends FormField<Color> {
   ColorPickerFormField({
     super.key,
-    FormFieldSetter<Color>? onSaved,
-    FormFieldValidator<Color>? validator,
-    Color initialValue = Colors.black12,
-    AutovalidateMode? autovalidateMode,
+    super.onSaved,
+    super.validator,
+    Color super.initialValue = Colors.black12,
+    super.autovalidateMode,
   }) : super(
-          onSaved: onSaved,
-          validator: validator,
-          initialValue: initialValue,
-          autovalidateMode: autovalidateMode,
           builder: (FormFieldState<Color> state) {
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

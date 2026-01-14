@@ -1,8 +1,6 @@
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/painting.dart';
-import 'package:hive_ce/hive.dart';
 import 'package:ordermate/utils/extensions.dart';
-import 'package:ordermate/utils/hive_types.dart';
 
 part 'product.mapper.dart';
 
