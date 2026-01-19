@@ -14,7 +14,7 @@ part 'menu_import_state.dart';
 class MenuImportCubit extends Cubit<MenuImportState> {
   MenuImportCubit() : super(MenuImportInitial());
 
-  pickImportFile() async {
+  Future<void> pickImportFile() async {
     FilePickerResult? pickedFile;
     try {
       pickedFile = await FilePicker.platform.pickFiles(

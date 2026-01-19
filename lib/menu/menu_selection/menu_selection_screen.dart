@@ -12,7 +12,7 @@ import 'package:ordermate/utils/extensions.dart';
 class MenuSelectionScreen extends StatelessWidget {
   const MenuSelectionScreen({super.key});
 
-  _openAddSheet(BuildContext context) async {
+  Future<void> _openAddSheet(BuildContext context) async {
     final menuImportCubit = context.read<MenuImportCubit>();
 
     await showModalBottomSheet(
@@ -275,7 +275,7 @@ class AddMenuSheet extends StatelessWidget {
     );
   }
 
-  _navigateToEditScreen(BuildContext context) async {
+  Future<void> _navigateToEditScreen(BuildContext context) async {
     final menusCubit = context.read<MenusCubit>();
     final navigator = Navigator.of(context);
 
@@ -289,7 +289,7 @@ class AddMenuSheet extends StatelessWidget {
     await menusCubit.loadMenus();
   }
 
-  _handleImport(BuildContext context) async {
+  Future<void> _handleImport(BuildContext context) async {
     final menuImportCubit = context.read<MenuImportCubit>();
 
     menuImportCubit.pickImportFile();

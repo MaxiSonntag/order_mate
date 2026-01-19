@@ -37,6 +37,13 @@ class ProductMapper extends ClassMapperBase<Product> {
     'hexColor',
     _$hexColor,
   );
+  static bool _$isSectionEnd(Product v) => v.isSectionEnd;
+  static const Field<Product, bool> _f$isSectionEnd = Field(
+    'isSectionEnd',
+    _$isSectionEnd,
+    opt: true,
+    def: false,
+  );
   static Color _$color(Product v) => v.color;
   static const Field<Product, Color> _f$color = Field(
     'color',
@@ -51,6 +58,7 @@ class ProductMapper extends ClassMapperBase<Product> {
     #price: _f$price,
     #sortingKey: _f$sortingKey,
     #hexColor: _f$hexColor,
+    #isSectionEnd: _f$isSectionEnd,
     #color: _f$color,
   };
 
@@ -61,6 +69,7 @@ class ProductMapper extends ClassMapperBase<Product> {
       price: data.dec(_f$price),
       sortingKey: data.dec(_f$sortingKey),
       hexColor: data.dec(_f$hexColor),
+      isSectionEnd: data.dec(_f$isSectionEnd),
     );
   }
 
@@ -127,6 +136,7 @@ abstract class ProductCopyWith<$R, $In extends Product, $Out>
     num? price,
     int? sortingKey,
     String? hexColor,
+    bool? isSectionEnd,
   });
   ProductCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
@@ -146,6 +156,7 @@ class _ProductCopyWithImpl<$R, $Out>
     num? price,
     int? sortingKey,
     String? hexColor,
+    bool? isSectionEnd,
   }) => $apply(
     FieldCopyWithData({
       if (name != null) #name: name,
@@ -153,6 +164,7 @@ class _ProductCopyWithImpl<$R, $Out>
       if (price != null) #price: price,
       if (sortingKey != null) #sortingKey: sortingKey,
       if (hexColor != null) #hexColor: hexColor,
+      if (isSectionEnd != null) #isSectionEnd: isSectionEnd,
     }),
   );
   @override
@@ -162,6 +174,7 @@ class _ProductCopyWithImpl<$R, $Out>
     price: data.get(#price, or: $value.price),
     sortingKey: data.get(#sortingKey, or: $value.sortingKey),
     hexColor: data.get(#hexColor, or: $value.hexColor),
+    isSectionEnd: data.get(#isSectionEnd, or: $value.isSectionEnd),
   );
 
   @override

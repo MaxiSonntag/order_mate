@@ -17,7 +17,7 @@ class MenuListTile extends StatelessWidget {
     this.isSelected = false,
   });
 
-  _openOptionsSheet(BuildContext context, Menu menu, bool isSelected) {
+  void _openOptionsSheet(BuildContext context, Menu menu, bool isSelected) {
     showModalBottomSheet(
       context: context,
       builder: (context) => MenuOptionsSheet(
@@ -104,7 +104,7 @@ class MenuOptionsSheet extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
-  _handleEdit(BuildContext context) async {
+  Future<void> _handleEdit(BuildContext context) async {
     final navigator = Navigator.of(context);
     final menusCubit = context.read<MenusCubit>();
 
@@ -118,13 +118,13 @@ class MenuOptionsSheet extends StatelessWidget {
     await menusCubit.loadMenus();
   }
 
-  _handleShare(BuildContext context) async {
+  Future<void> _handleShare(BuildContext context) async {
     final navigator = Navigator.of(context);
     await context.read<MenuShareRepository>().shareMenu(menu);
     navigator.pop();
   }
 
-  _handleDelete(BuildContext context) async {
+  Future<void> _handleDelete(BuildContext context) async {
     final navigator = Navigator.of(context);
     final menusCubit = context.read<MenusCubit>();
 

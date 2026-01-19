@@ -21,7 +21,7 @@ class TextInputBottomSheet extends StatelessWidget {
     _inputCtrl.text = currentValue;
   }
 
-  _submitSetting(BuildContext context) {
+  void _submitSetting(BuildContext context) {
     if (_formKey.currentState?.validate() ?? false) {
       Navigator.of(context).pop(_inputCtrl.text);
     }

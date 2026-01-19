@@ -7,6 +7,7 @@ import 'package:ordermate/menu/models/menu.dart';
 import 'package:ordermate/menu/models/product.dart';
 import 'package:ordermate/menu/settings/cubits/input_columns_cubit.dart';
 import 'package:ordermate/menu/settings/cubits/multiple_orders_cubit.dart';
+import 'package:ordermate/components/dotted_divider.dart';
 import 'package:ordermate/order/order_cubit.dart';
 import 'package:ordermate/utils/extensions.dart';
 
@@ -52,23 +53,35 @@ class ProductInput extends StatelessWidget {
             ),
           );
         }
-/*        return UnscrollableGrid(
-          crossAxisCount: 2,
-          itemCount: menu.products.length,
-          itemBuilder: (context, index) => ProductSelectionItem(
-            orderName: orderName,
-            product: menu.products[index],
-          ),
-        );*/
         return BlocBuilder<InputColumnsCubit, int>(
           builder: (context, inputColumnCount) {
-            return GridView.count(
-              crossAxisCount: inputColumnCount,
-              childAspectRatio: inputColumnCount.toDouble(),
+            return CustomScrollView(
               physics: const ClampingScrollPhysics(),
-              children: [
-                for (final product in menu.products)
-                  ProductSelectionItem(orderName: orderName, product: product),
+              slivers: [
+                for (int sectionIdx = 0;
+                    sectionIdx < menu.products.displaySectionCount;
+                    sectionIdx++) ...[
+                  SliverGrid.count(
+                    crossAxisCount: inputColumnCount,
+                    childAspectRatio: inputColumnCount.toDouble(),
+                    children: [
+                      for (final product
+                          in menu.products.getSectionSublist(sectionIdx)) ...[
+                        ProductSelectionItem(
+                          orderName: orderName,
+                          product: product,
+                        ),
+                      ],
+                    ],
+                  ),
+                  if (sectionIdx < menu.products.displaySectionCount - 1)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: DottedDivider(color: Colors.grey),
+                      ),
+                    ),
+                ]
               ],
             );
           },
@@ -102,9 +115,7 @@ class ProductSelectionItem extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border.all(
                   width: 0.1,
-                  color: Theme
-                      .of(context)
-                      .dividerColor,
+                  color: Theme.of(context).dividerColor,
                 ),
               ),
               child: Padding(
@@ -119,13 +130,19 @@ class ProductSelectionItem extends StatelessWidget {
                       children: [
                         Text(
                           product.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
+                            color: product.color.foregroundTextColor,
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        Text('(${product.unit})'),
+                        Text(
+                          '(${product.unit})',
+                          style: TextStyle(
+                            color: product.color.foregroundTextColor,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -167,8 +184,8 @@ class UnscrollableGrid extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 for (var idx = i * crossAxisCount;
-                idx < (i + 1) * crossAxisCount;
-                idx++)
+                    idx < (i + 1) * crossAxisCount;
+                    idx++)
                   if (idx <= itemCount - 1)
                     Expanded(
                       child: itemBuilder(context, idx),

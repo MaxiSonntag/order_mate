@@ -202,4 +202,11 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get importPermissionErrorMessage =>
       'OrderMate hat keinen Zugriff auf die Datei – bitte erteile die Berechtigung oder verschiebe die Datein in einen lesbaren Ordner, der nicht auf einer externen Speicherkarte (SD-Karte) liegt (z.B. \"Downloads\")';
+
+  @override
+  String get insertDividerBelowTitle => 'Trennlinie nach diesem Produkt';
+
+  @override
+  String get insertDividerBelowDesc =>
+      'So lassen sich \"Sektionen\" in der Produktauswahl erstellen';
 }

@@ -92,5 +92,7 @@
   "splitBillQuestion": "Remove products from order?",
   "splitBillBackAndDelete": "No, back & delete",
   "splitBillConfirm": "Split",
-  "importPermissionErrorMessage": "OrderMate can't access the file – please grant storage permissions or move the file into a readable folder that's not in an external memory card (SD-card), e.g. \"Downloads\""
+  "importPermissionErrorMessage": "OrderMate can't access the file – please grant storage permissions or move the file into a readable folder that's not in an external memory card (SD-card), e.g. 'Downloads'",
+  "insertDividerBelowTitle": "Divider after this product",
+  "insertDividerBelowDesc": "This creates 'sections' in the product selection"
 }
