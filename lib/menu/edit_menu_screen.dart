@@ -28,10 +28,7 @@ class EditMenuScreen extends StatelessWidget {
     menu?.products ?? [],
   );
 
-  EditMenuScreen({
-    super.key,
-    this.menu,
-  });
+  EditMenuScreen({super.key, this.menu});
 
   bool get isEdit => menu != null;
 
@@ -43,11 +40,7 @@ class EditMenuScreen extends StatelessWidget {
       final name = _nameCtrl.text;
       final products = _products.value;
 
-      final menu = Menu(
-        uuid: uuid,
-        name: name,
-        products: products,
-      );
+      final menu = Menu(uuid: uuid, name: name, products: products);
 
       await context.read<MenusCubit>().saveMenu(menu);
       navigator.pop();
@@ -117,9 +110,7 @@ class EditMenuScreen extends StatelessWidget {
                         return null;
                       },
                     ),
-                    SizedBox(
-                      height: MediaQuery.of(context).viewPadding.bottom,
-                    )
+                    SizedBox(height: MediaQuery.of(context).viewPadding.bottom),
                   ],
                 ),
               ),
@@ -139,63 +130,63 @@ class ProductsFormField extends FormField<List<Product>> {
     super.initialValue = const [],
     super.autovalidateMode,
   }) : super(
-          builder: (FormFieldState<List<Product>> state) {
-            List<Product> sortedProducts = List<Product>.from(state.value ?? [])
-              ..sort((p1, p2) => p1.sortingKey - p2.sortingKey);
+         builder: (FormFieldState<List<Product>> state) {
+           List<Product> sortedProducts = List<Product>.from(state.value ?? [])
+             ..sort((p1, p2) => p1.sortingKey - p2.sortingKey);
 
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (state.hasError)
-                  Text(
-                    state.errorText ?? state.context.translate.unknownError,
-                    style: TextStyle(
-                      color: Theme.of(state.context).colorScheme.error,
-                    ),
-                  ),
-                for (final product in sortedProducts) ...[
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Container(
-                      width: 25,
-                      height: 25,
-                      decoration: BoxDecoration(
-                        color: product.color,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                    title: Text(product.name),
-                    subtitle: Text(product.unit),
-                    trailing: Text(
-                      '${product.price.toStringAsFixed(2)}€',
-                      style: Theme.of(state.context).textTheme.bodyMedium,
-                    ),
-                    onTap: () => _openActionsSheet(
-                      state,
-                      product: product,
-                      onDelete: () {
-                        state.didChange([...state.value!]..remove(product));
-                        state.save();
-                      },
-                    ),
-                  ),
-                  if (product.isSectionEnd) DottedDivider(color: Colors.grey)
-                ],
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedIconButton(
-                        icon: const Icon(Icons.add_outlined),
-                        onPressed: () => _openEditProductBottomSheet(state),
-                        child: Text(state.context.translate.addProduct),
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            );
-          },
-        );
+           return Column(
+             mainAxisSize: MainAxisSize.min,
+             children: [
+               if (state.hasError)
+                 Text(
+                   state.errorText ?? state.context.translate.unknownError,
+                   style: TextStyle(
+                     color: Theme.of(state.context).colorScheme.error,
+                   ),
+                 ),
+               for (final product in sortedProducts) ...[
+                 ListTile(
+                   contentPadding: EdgeInsets.zero,
+                   leading: Container(
+                     width: 25,
+                     height: 25,
+                     decoration: BoxDecoration(
+                       color: product.color,
+                       borderRadius: BorderRadius.circular(4),
+                     ),
+                   ),
+                   title: Text(product.name),
+                   subtitle: Text(product.unit),
+                   trailing: Text(
+                     '${product.price.toStringAsFixed(2)}€',
+                     style: Theme.of(state.context).textTheme.bodyMedium,
+                   ),
+                   onTap: () => _openActionsSheet(
+                     state,
+                     product: product,
+                     onDelete: () {
+                       state.didChange([...state.value!]..remove(product));
+                       state.save();
+                     },
+                   ),
+                 ),
+                 if (product.isSectionEnd) DottedDivider(color: Colors.grey),
+               ],
+               Row(
+                 children: [
+                   Expanded(
+                     child: OutlinedIconButton(
+                       icon: const Icon(Icons.add_outlined),
+                       onPressed: () => _openEditProductBottomSheet(state),
+                       child: Text(state.context.translate.addProduct),
+                     ),
+                   ),
+                 ],
+               ),
+             ],
+           );
+         },
+       );
 
   static Future<void> _openActionsSheet(
     FormFieldState<List<Product>> state, {
@@ -243,9 +234,7 @@ class ProductsFormField extends FormField<List<Product>> {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: EditProductSheet(
-            product: product,
-          ),
+          child: EditProductSheet(product: product),
         );
       },
     );
@@ -270,7 +259,9 @@ class ProductsFormField extends FormField<List<Product>> {
   }
 
   static Future<bool> _openDeleteConfirmationDialog(
-      FormFieldState<List<Product>> state, Product product) async {
+    FormFieldState<List<Product>> state,
+    Product product,
+  ) async {
     return await showDialog(
       context: state.context,
       builder: (_) => AlertDialog(
@@ -329,18 +320,12 @@ class ActionsSheet extends StatelessWidget {
   }
 }
 
-enum MenuProductAction {
-  edit,
-  delete,
-}
+enum MenuProductAction { edit, delete }
 
 class EditProductSheet extends StatefulWidget {
   final Product? product;
 
-  const EditProductSheet({
-    super.key,
-    this.product,
-  });
+  const EditProductSheet({super.key, this.product});
 
   @override
   State<EditProductSheet> createState() => _EditProductSheetState();
@@ -349,8 +334,9 @@ class EditProductSheet extends StatefulWidget {
 class _EditProductSheetState extends State<EditProductSheet> {
   final _formKey = GlobalKey<FormState>();
 
-  final _autovalidate =
-      ValueNotifier<AutovalidateMode>(AutovalidateMode.disabled);
+  final _autovalidate = ValueNotifier<AutovalidateMode>(
+    AutovalidateMode.disabled,
+  );
 
   final _displayNameNode = FocusNode();
   final _priceNode = FocusNode();
@@ -367,34 +353,27 @@ class _EditProductSheetState extends State<EditProductSheet> {
   @override
   void initState() {
     super.initState();
-    _displayNameCtrl = TextEditingController(
-      text: widget.product?.name,
-    );
+    _displayNameCtrl = TextEditingController(text: widget.product?.name);
     _priceCtrl = TextEditingController(
       text: widget.product?.price.toStringAsFixed(2),
     );
-    _unitCtrl = TextEditingController(
-      text: widget.product?.unit,
-    );
-    _currentColor = ValueNotifier(
-      widget.product?.color ?? Colors.green,
-    );
-    _isSectionEnd = ValueNotifier(
-      widget.product?.isSectionEnd ?? false,
-    );
+    _unitCtrl = TextEditingController(text: widget.product?.unit);
+    _currentColor = ValueNotifier(widget.product?.color ?? Colors.green);
+    _isSectionEnd = ValueNotifier(widget.product?.isSectionEnd ?? false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 12.0,
-            horizontal: 16.0,
-          ),
-          child: ValueListenableBuilder<AutovalidateMode>(
+    return SingleChildScrollView(
+      child: Form(
+        key: _formKey,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 12.0,
+              horizontal: 16.0,
+            ),
+            child: ValueListenableBuilder<AutovalidateMode>(
               valueListenable: _autovalidate,
               builder: (context, autovalidate, child) {
                 return Column(
@@ -452,17 +431,16 @@ class _EditProductSheetState extends State<EditProductSheet> {
                       focusNode: _priceNode,
                       controller: _priceCtrl,
                       inputFormatters: [
-                        //FilteringTextInputFormatter.deny(RegExp(r',')),
-                        DecimalTextInputFormatter(decimalRange: 2),
+                        SignedDecimalFormatter(),
                         TextInputFormatter.withFunction(
                           (oldValue, newValue) => newValue.copyWith(
                             text: newValue.text.replaceAll(',', '.'),
                           ),
                         ),
                       ],
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
+                      keyboardType: TextInputType.numberWithOptions(
                         signed: true,
+                        decimal: true,
                       ),
                       maxLines: 1,
                       autovalidateMode: autovalidate,
@@ -489,17 +467,22 @@ class _EditProductSheetState extends State<EditProductSheet> {
                     ),
                     const SizedBox(height: 8.0),
                     ValueListenableBuilder(
-                        valueListenable: _isSectionEnd,
-                        builder: (context, isSectionEnd, _) {
-                          return SwitchListTile(
-                            title: Text(context.translate.insertDividerBelowTitle),
-                            subtitle: Text(context.translate.insertDividerBelowDesc),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 0),
-                            value: isSectionEnd,
-                            onChanged: (isSectionEnd) =>
-                                _isSectionEnd.value = isSectionEnd,
-                          );
-                        }),
+                      valueListenable: _isSectionEnd,
+                      builder: (context, isSectionEnd, _) {
+                        return SwitchListTile(
+                          title: Text(
+                            context.translate.insertDividerBelowTitle,
+                          ),
+                          subtitle: Text(
+                            context.translate.insertDividerBelowDesc,
+                          ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                          value: isSectionEnd,
+                          onChanged: (isSectionEnd) =>
+                              _isSectionEnd.value = isSectionEnd,
+                        );
+                      },
+                    ),
                     const SizedBox(height: 12.0),
                     Row(
                       children: [
@@ -511,10 +494,12 @@ class _EditProductSheetState extends State<EditProductSheet> {
                           ),
                         ),
                       ],
-                    )
+                    ),
                   ],
                 );
-              }),
+              },
+            ),
+          ),
         ),
       ),
     );
@@ -553,51 +538,51 @@ class ColorPickerFormField extends FormField<Color> {
     Color super.initialValue = Colors.black12,
     super.autovalidateMode,
   }) : super(
-          builder: (FormFieldState<Color> state) {
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(state.context.translate.color),
-                InkWell(
-                  onTap: () async {
-                    final color = await showDialog(
-                      context: state.context,
-                      builder: (context) => AlertDialog(
-                        content: SingleChildScrollView(
-                          child: ColorPicker(
-                            pickerColor: state.value ?? initialValue,
-                            onColorChanged: (color) {
-                              state.didChange(color);
-                              state.save();
-                            },
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text(context.translate.done),
-                          ),
-                        ],
-                      ),
-                    );
-                    if (color != null) {
-                      state.didChange(color);
-                      state.save();
-                    }
-                  },
-                  child: Container(
-                    width: 100,
-                    height: 35,
-                    decoration: BoxDecoration(
-                      color: state.value,
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                  ),
-                )
-              ],
-            );
-          },
-        );
+         builder: (FormFieldState<Color> state) {
+           return Row(
+             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+             children: [
+               Text(state.context.translate.color),
+               InkWell(
+                 onTap: () async {
+                   final color = await showDialog(
+                     context: state.context,
+                     builder: (context) => AlertDialog(
+                       content: SingleChildScrollView(
+                         child: ColorPicker(
+                           pickerColor: state.value ?? initialValue,
+                           onColorChanged: (color) {
+                             state.didChange(color);
+                             state.save();
+                           },
+                         ),
+                       ),
+                       actions: [
+                         TextButton(
+                           onPressed: () {
+                             Navigator.pop(context);
+                           },
+                           child: Text(context.translate.done),
+                         ),
+                       ],
+                     ),
+                   );
+                   if (color != null) {
+                     state.didChange(color);
+                     state.save();
+                   }
+                 },
+                 child: Container(
+                   width: 100,
+                   height: 35,
+                   decoration: BoxDecoration(
+                     color: state.value,
+                     borderRadius: BorderRadius.circular(12.0),
+                   ),
+                 ),
+               ),
+             ],
+           );
+         },
+       );
 }
