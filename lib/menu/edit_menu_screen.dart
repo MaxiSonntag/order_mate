@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:ordermate/components/outlined_icon_button.dart';
+import 'package:ordermate/components/action_button.dart';
+import 'package:ordermate/components/modern_app_bar.dart';
 import 'package:ordermate/menu/menus_cubit/menus_cubit.dart';
 import 'package:ordermate/menu/models/menu.dart';
 import 'package:ordermate/menu/models/product.dart';
@@ -52,12 +53,13 @@ class EditMenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isEdit ? menu!.name : context.translate.addProductList),
+      appBar: ModernAppBar(
+        title: isEdit ? menu!.name : context.translate.addProductList,
+        showBackButton: true,
         actions: [
-          IconButton(
-            onPressed: () => _saveMenu(context),
-            icon: const Icon(Icons.save),
+          GlassIconButton(
+            icon: Icons.save_outlined,
+            onTap: () => _saveMenu(context),
           ),
         ],
       ),
@@ -71,28 +73,33 @@ class EditMenuScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: 12.0,
-                  horizontal: 16.0,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextFormField(
-                      decoration: InputDecoration(
-                        label: Text(context.translate.name),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          label: Text(context.translate.name),
+                        ),
+                        focusNode: _nameNode,
+                        controller: _nameCtrl,
+                        maxLines: 1,
+                        validator: (text) {
+                          return Validators.textNotEmpty(context, text);
+                        },
                       ),
-                      focusNode: _nameNode,
-                      controller: _nameCtrl,
-                      maxLines: 1,
-                      validator: (text) {
-                        return Validators.textNotEmpty(context, text);
-                      },
                     ),
                     const SizedBox(height: 12.0),
                     const Divider(),
-                    Text(
-                      context.translate.products,
-                      style: Theme.of(context).textTheme.titleLarge,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        context.translate.products,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                     ),
                     const SizedBox(height: 8.0),
                     ProductsFormField(
@@ -138,50 +145,103 @@ class ProductsFormField extends FormField<List<Product>> {
              mainAxisSize: MainAxisSize.min,
              children: [
                if (state.hasError)
-                 Text(
-                   state.errorText ?? state.context.translate.unknownError,
-                   style: TextStyle(
-                     color: Theme.of(state.context).colorScheme.error,
-                   ),
-                 ),
-               for (final product in sortedProducts) ...[
-                 ListTile(
-                   contentPadding: EdgeInsets.zero,
-                   leading: Container(
-                     width: 25,
-                     height: 25,
-                     decoration: BoxDecoration(
-                       color: product.color,
-                       borderRadius: BorderRadius.circular(4),
+                 Padding(
+                   padding: const EdgeInsets.symmetric(horizontal: 16),
+                   child: Text(
+                     state.errorText ?? state.context.translate.unknownError,
+                     style: TextStyle(
+                       color: Theme.of(state.context).colorScheme.error,
                      ),
                    ),
-                   title: Text(product.name),
-                   subtitle: Text(product.unit),
-                   trailing: Text(
-                     '${product.price.toStringAsFixed(2)}€',
-                     style: Theme.of(state.context).textTheme.bodyMedium,
-                   ),
-                   onTap: () => _openActionsSheet(
-                     state,
-                     product: product,
-                     onDelete: () {
-                       state.didChange([...state.value!]..remove(product));
-                       state.save();
-                     },
+                 ),
+               ReorderableListView.builder(
+                 shrinkWrap: true,
+                 physics: const NeverScrollableScrollPhysics(),
+                 buildDefaultDragHandles: false,
+                 itemCount: sortedProducts.length,
+                 onReorder: (oldIndex, newIndex) {
+                   if (oldIndex < newIndex) {
+                     newIndex -= 1;
+                   }
+                   final reordered = List<Product>.from(sortedProducts);
+                   final movedProduct = reordered.removeAt(oldIndex);
+                   reordered.insert(newIndex, movedProduct);
+
+                   final updatedProducts = reordered
+                       .asMap()
+                       .entries
+                       .map((entry) =>
+                           entry.value.copyWith(sortingKey: entry.key))
+                       .toList();
+
+                   state.didChange(updatedProducts);
+                   state.save();
+                 },
+                 itemBuilder: (context, index) {
+                   final product = sortedProducts[index];
+                   return ReorderableDelayedDragStartListener(
+                     key: ValueKey('${product.name}_${product.unit}_$index'),
+                     index: index,
+                     child: Column(
+                       mainAxisSize: MainAxisSize.min,
+                       children: [
+                         ListTile(
+                           contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                           leading: Container(
+                             width: 25,
+                             height: 25,
+                             decoration: BoxDecoration(
+                               color: product.color,
+                               borderRadius: BorderRadius.circular(4),
+                             ),
+                           ),
+                           title: Text(product.name),
+                           subtitle: Text(product.unit),
+                           trailing: Row(
+                             mainAxisAlignment: MainAxisAlignment.end,
+                             mainAxisSize: MainAxisSize.min,
+                             children: [
+                               Text(
+                                 '${product.price.toStringAsFixed(2)}€',
+                                 style:
+                                     Theme.of(state.context).textTheme.bodyMedium,
+                               ),
+                               SizedBox(width: 16),
+                               Icon(Icons.reorder_outlined, color: Colors.grey),
+                             ],
+                           ),
+                           onTap: () => _openActionsSheet(
+                             state,
+                             product: product,
+                             onDelete: () {
+                               state.didChange(
+                                   [...state.value!]..remove(product));
+                               state.save();
+                             },
+                           ),
+                         ),
+                         if (product.isSectionEnd)
+                           DottedDivider(color: Colors.grey),
+                       ],
+                     ),
+                   );
+                 },
+               ),
+               Padding(
+                 padding: const EdgeInsets.symmetric(horizontal: 16),
+                 child: ActionButton(
+                   color: Theme.of(state.context).colorScheme.primary,
+                   height: 50,
+                   useSafeArea: false,
+                   margin: EdgeInsets.zero,
+                   onPressed: () => _openEditProductBottomSheet(state),
+                   child: ActionButtonContent(
+                     icon: Icons.add_outlined,
+                     label: state.context.translate.addProduct,
+                     color: Theme.of(state.context).colorScheme.primary,
+                     centered: true,
                    ),
                  ),
-                 if (product.isSectionEnd) DottedDivider(color: Colors.grey),
-               ],
-               Row(
-                 children: [
-                   Expanded(
-                     child: OutlinedIconButton(
-                       icon: const Icon(Icons.add_outlined),
-                       onPressed: () => _openEditProductBottomSheet(state),
-                       child: Text(state.context.translate.addProduct),
-                     ),
-                   ),
-                 ],
                ),
              ],
            );
@@ -484,16 +544,18 @@ class _EditProductSheetState extends State<EditProductSheet> {
                       },
                     ),
                     const SizedBox(height: 12.0),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedIconButton(
-                            icon: const Icon(Icons.save_outlined),
-                            onPressed: () => _save(context),
-                            child: Text(context.translate.save),
-                          ),
-                        ),
-                      ],
+                    ActionButton(
+                      color: Theme.of(context).colorScheme.primary,
+                      height: 50,
+                      useSafeArea: false,
+                      margin: EdgeInsets.zero,
+                      onPressed: () => _save(context),
+                      child: ActionButtonContent(
+                        icon: Icons.save_outlined,
+                        label: context.translate.save,
+                        color: Theme.of(context).colorScheme.primary,
+                        centered: true,
+                      ),
                     ),
                   ],
                 );

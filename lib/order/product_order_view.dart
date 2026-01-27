@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ordermate/components/action_button.dart';
 import 'package:ordermate/menu/settings/cubits/multiple_orders_cubit.dart';
 import 'package:ordermate/menu/widgets/text_input_bottom_sheet.dart';
 import 'package:ordermate/order/order_cubit.dart';
@@ -8,6 +9,7 @@ import 'package:ordermate/order/order_list.dart';
 import 'package:ordermate/order/product_order.dart';
 import 'package:ordermate/order/subtotal_view.dart';
 import 'package:ordermate/order_overview/customer_order.dart';
+import 'package:ordermate/utils/constants.dart';
 import 'package:ordermate/utils/extensions.dart';
 
 class ProductOrderView extends StatelessWidget {
@@ -76,7 +78,8 @@ class ProductOrderView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<OrderCubit, List<CustomerOrder>>(
       builder: (context, state) {
-        final order = state
+        final order =
+            state
                 .firstWhereOrNull((element) => element.name == orderName)
                 ?.order ??
             [];
@@ -87,36 +90,45 @@ class ProductOrderView extends StatelessWidget {
               children: [
                 Expanded(
                   child: OrderList(
-                      order: order,
-                      emptyHintText: context.translate.noOrderYet,
-                      readOnly: readOnly,
-                      onTap: (product) {
-                        context.read<OrderCubit>().removeProduct(
-                              orderName,
-                              product,
-                            );
-                      }),
+                    useBottomGradient: true,
+                    order: order,
+                    emptyHintText: context.translate.noOrderYet,
+                    readOnly: readOnly,
+                    onTap: (product) {
+                      context.read<OrderCubit>().removeProduct(
+                        orderName,
+                        product,
+                      );
+                    },
+                  ),
                 ),
-                if ((!multipleOrdersAllowed || orderName != OrderCubit.orderNamePlaceholder) && order.isNotEmpty)
+                if ((!multipleOrdersAllowed ||
+                        orderName != OrderCubit.orderNamePlaceholder) &&
+                    order.isNotEmpty)
                   SubtotalButton(
                     orderName: orderName,
-                    height: 50,
+                    height: AppConstants.buttonHeightSubtotal,
                     onPressed: () async {
-                      final subtotalProducts =
-                          await Navigator.of(context).push<List<ProductOrder>>(
-                        MaterialPageRoute(
-                          builder: (ctx) =>
-                              SubtotalView(availableProducts: order),
-                        ),
-                      );
-                      if ((subtotalProducts?.isNotEmpty ?? false) && context.mounted) {
-                        _onPressed(context, multipleOrdersAllowed,
-                            orders: subtotalProducts);
+                      final subtotalProducts = await Navigator.of(context)
+                          .push<List<ProductOrder>>(
+                            MaterialPageRoute(
+                              builder: (ctx) =>
+                                  SubtotalView(availableProducts: order),
+                            ),
+                          );
+                      if ((subtotalProducts?.isNotEmpty ?? false) &&
+                          context.mounted) {
+                        _onPressed(
+                          context,
+                          multipleOrdersAllowed,
+                          orders: subtotalProducts,
+                        );
                       }
                     },
                   ),
                 SumButton(
                   orderName: orderName,
+                  height: AppConstants.buttonHeightSum,
                   onPressed: () => _onPressed(
                     context,
                     context.read<MultipleOrdersCubit>().state,
@@ -131,7 +143,7 @@ class ProductOrderView extends StatelessWidget {
   }
 }
 
-class ProductOrderTile extends StatelessWidget {
+class ProductOrderTile extends StatefulWidget {
   final ProductOrder order;
   final bool readOnly;
   final VoidCallback? onTap;
@@ -144,35 +156,124 @@ class ProductOrderTile extends StatelessWidget {
   });
 
   @override
+  State<ProductOrderTile> createState() => _ProductOrderTileState();
+}
+
+class _ProductOrderTileState extends State<ProductOrderTile> {
+  bool _isPressed = false;
+  DateTime? _pressStartTime;
+
+  void _handleTapDown(TapDownDetails _) {
+    _pressStartTime = DateTime.now();
+    setState(() => _isPressed = true);
+  }
+
+  Future<void> _handleTapUp(TapUpDetails _) async {
+    // Ensure the animation is visible for at least the animation duration
+    final elapsed = DateTime.now().difference(_pressStartTime!);
+    final remaining = AppConstants.animationFast - elapsed;
+    if (remaining > Duration.zero) {
+      await Future.delayed(remaining);
+    }
+    if (mounted) {
+      setState(() => _isPressed = false);
+      widget.onTap?.call();
+    }
+  }
+
+  void _handleTapCancel() {
+    setState(() => _isPressed = false);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListTile(
-      tileColor: order.product.color,
-      leading: Text(
-        '${order.amount}',
-        style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: order.product.color.foregroundTextColor,
+    final product = widget.order.product;
+    final color = product.color;
+    final textColor = color.withValues(alpha: 0.7).foregroundTextColor;
+
+    return GestureDetector(
+      onTapDown: widget.readOnly ? null : _handleTapDown,
+      onTapUp: widget.readOnly ? null : _handleTapUp,
+      onTapCancel: widget.readOnly ? null : _handleTapCancel,
+      child: AnimatedScale(
+        scale: _isPressed ? 0.98 : 1.0,
+        duration: AppConstants.animationFast,
+        child: Container(
+          margin: EdgeInsets.symmetric(vertical: 2),
+          decoration: BoxDecoration(
+            // borderRadius: BorderRadius.circular(AppConstants.radiusXL),
+            color: color.withValues(alpha: AppConstants.opacityStrong),
+            border: Border.all(color: color, width: AppConstants.borderWidth),
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: AppConstants.spacingL,
+              vertical: AppConstants.spacingM,
+            ),
+            child: Row(
+              children: [
+                // Amount badge
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: product.color.textSurfaceColor.withValues(
+                      alpha: AppConstants.opacityLight,
+                    ),
+                    borderRadius: BorderRadius.circular(AppConstants.radiusM),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${widget.order.amount}',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: textColor,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: AppConstants.spacingM + 2),
+                // Name and unit
+                Expanded(
+                  child: Wrap(
+                    children: [
+                      Text(
+                        product.name,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: textColor,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '(${product.unit})',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: textColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: AppConstants.spacingM),
+                // Price
+                Text(
+                  '${(widget.order.amount * product.price).toStringAsFixed(2)}€',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-      title: Text(
-        '${order.product.name} (${order.product.unit})',
-        maxLines: 2,
-        style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: order.product.color.foregroundTextColor,
-        ),
-      ),
-      trailing: Text(
-        '${(order.amount * order.product.price).toStringAsFixed(2)}€',
-        style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: order.product.color.foregroundTextColor,
-        ),
-      ),
-      onTap: readOnly ? null : onTap,
     );
   }
 }
@@ -191,12 +292,6 @@ class SumButton extends StatelessWidget {
     super.key,
   });
 
-  final textStyle = const TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 30,
-    color: Colors.white,
-  );
-
   String _getText(BuildContext context, bool multipleOrdersAllowed) {
     if (multipleOrdersAllowed && orderName == OrderCubit.orderNamePlaceholder) {
       return context.translate.doOrder;
@@ -208,14 +303,25 @@ class SumButton extends StatelessWidget {
     }
   }
 
-  Color _getColor(BuildContext context, bool multipleOrdersAllowed) {
+  Color _getColor(bool multipleOrdersAllowed) {
     if (multipleOrdersAllowed && orderName == OrderCubit.orderNamePlaceholder) {
-      return Colors.blue;
+      return AppConstants.indigoAction;
     } else if (multipleOrdersAllowed &&
         orderName != OrderCubit.orderNamePlaceholder) {
-      return Colors.green;
+      return AppConstants.emeraldAction;
     } else {
-      return Colors.green;
+      return AppConstants.emeraldAction;
+    }
+  }
+
+  IconData _getIcon(bool multipleOrdersAllowed) {
+    if (multipleOrdersAllowed && orderName == OrderCubit.orderNamePlaceholder) {
+      return Icons.receipt_long_outlined;
+    } else if (multipleOrdersAllowed &&
+        orderName != OrderCubit.orderNamePlaceholder) {
+      return Icons.check_circle_outline;
+    } else {
+      return Icons.payments_outlined;
     }
   }
 
@@ -223,45 +329,23 @@ class SumButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<MultipleOrdersCubit, bool>(
       builder: (context, multipleOrdersAllowed) {
-        return InkWell(
-          onTap: onPressed,
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: (useSafeArea
-                          ? MediaQuery.of(context).padding.bottom
-                          : 0) +
-                      (height ?? 80),
-                  color: _getColor(context, multipleOrdersAllowed),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _getText(context, multipleOrdersAllowed)
-                              .toUpperCase(),
-                          style: textStyle,
-                        ),
-                        BlocBuilder<OrderCubit, List<CustomerOrder>>(
-                          builder: (context, orders) {
-                            final order = orders
-                                .firstWhereOrNull(
-                                    (element) => element.name == orderName)
-                                ?.order;
-                            return Text(
-                              '${(order?.sum.toStringAsFixed(2) ?? '0.00')}€',
-                              style: textStyle,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
+        final color = _getColor(multipleOrdersAllowed);
+        final order = context.select<OrderCubit, List<ProductOrder>?>(
+          (cubit) => cubit.state
+              .firstWhereOrNull((element) => element.name == orderName)
+              ?.order,
+        );
+
+        return ActionButton(
+          color: color,
+          height: height,
+          useSafeArea: useSafeArea,
+          onPressed: onPressed,
+          child: ActionButtonContent(
+            icon: _getIcon(multipleOrdersAllowed),
+            label: _getText(context, multipleOrdersAllowed),
+            trailingText: '${(order?.sum.toStringAsFixed(2) ?? '0.00')}€',
+            color: color,
           ),
         );
       },
@@ -275,58 +359,40 @@ class SubtotalButton extends StatelessWidget {
   final double? height;
   final VoidCallback? onPressed;
 
+  static const _color = AppConstants.amberAction;
+
   const SubtotalButton({
     required this.orderName,
-    this.useSafeArea = true,
+    this.useSafeArea = false,
     this.height,
     this.onPressed,
     super.key,
   });
 
-  final textStyle = const TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 22,
-    color: Colors.white,
-  );
-
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onPressed,
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              height:
-                  (useSafeArea ? MediaQuery.of(context).padding.bottom : 0) +
-                      (height ?? 40),
-              color: Colors.orange,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      context.translate.splitBill.toUpperCase(),
-                      style: textStyle,
-                    ),
-                    BlocBuilder<OrderCubit, List<CustomerOrder>>(
-                      builder: (context, orders) {
-                        final order = orders
-                            .firstWhere((element) => element.name == orderName)
-                            .order;
-                        return Text(
-                          '${order.sum.toStringAsFixed(2)}€',
-                          style: textStyle,
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+    final order = context.select<OrderCubit, List<ProductOrder>>(
+      (cubit) =>
+          cubit.state
+              .firstWhereOrNull((element) => element.name == orderName)
+              ?.order ??
+          [],
+    );
+
+    return ActionButton(
+      color: _color,
+      height: height,
+      useSafeArea: useSafeArea,
+      margin: EdgeInsets.symmetric(
+        horizontal: AppConstants.spacingL,
+        vertical: 6,
+      ),
+      onPressed: onPressed,
+      child: ActionButtonContent(
+        icon: Icons.call_split_rounded,
+        label: context.translate.splitBill,
+        trailingText: '${order.sum.toStringAsFixed(2)}€',
+        color: _color,
       ),
     );
   }

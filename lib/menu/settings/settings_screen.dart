@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ordermate/components/modern_app_bar.dart';
 import 'package:ordermate/menu/menu_selection/menu_selection_screen.dart';
 import 'package:ordermate/menu/settings/cubits/input_columns_cubit.dart';
 import 'package:ordermate/menu/settings/cubits/multiple_orders_cubit.dart';
@@ -28,8 +29,9 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.translate.settings),
+      appBar: ModernAppBar(
+        title: context.translate.settings,
+        showBackButton: true,
       ),
       body: ListView(
         children: [
