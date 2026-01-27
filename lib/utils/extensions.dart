@@ -19,23 +19,26 @@ extension ColorX on Color {
     return Color(int.parse(buffer.toString(), radix: 16));
   }
 
-  String get hexString => '#${value.toRadixString(16)}';
+  String get hexString {
+    String toHex(double v) =>
+        (v * 255).round().toRadixString(16).padLeft(2, '0');
+    return '#${toHex(a)}${toHex(r)}${toHex(g)}${toHex(b)}';
+  }
 
   /// Returns either Colors.black or Colors.white, whichever is more readable
   /// on top of this color.
   Color get foregroundTextColor {
     // Relative luminance per WCAG (sRGB -> linear -> luminance)
-    double toLinear(int c) {
-      final v = c / 255.0;
+    double toLinear(double v) {
       return (v <= 0.03928)
           ? (v / 12.92)
           : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
     }
 
-    final r = toLinear(red);
-    final g = toLinear(green);
-    final b = toLinear(blue);
-    final luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    final rLinear = toLinear(r);
+    final gLinear = toLinear(g);
+    final bLinear = toLinear(b);
+    final luminance = 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear;
 
     // Contrast ratio with white/black (WCAG)
     final contrastWithWhite = (1.0 + 0.05) / (luminance + 0.05);
@@ -49,17 +52,16 @@ extension ColorX on Color {
   /// Basically the opposite of foregroundTextColor
   Color get textSurfaceColor {
     // Relative luminance per WCAG (sRGB -> linear -> luminance)
-    double toLinear(int c) {
-      final v = c / 255.0;
+    double toLinear(double v) {
       return (v <= 0.03928)
           ? (v / 12.92)
           : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
     }
 
-    final r = toLinear(red);
-    final g = toLinear(green);
-    final b = toLinear(blue);
-    final luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    final rLinear = toLinear(r);
+    final gLinear = toLinear(g);
+    final bLinear = toLinear(b);
+    final luminance = 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear;
 
     // Contrast ratio with white/black (WCAG)
     final contrastWithWhite = (1.0 + 0.05) / (luminance + 0.05);

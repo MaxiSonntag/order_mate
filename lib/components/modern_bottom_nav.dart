@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -123,7 +121,7 @@ class _NavItemState extends State<_NavItem> {
             ),
             decoration: BoxDecoration(
               color: widget.isSelected
-                  ? primaryColor.withOpacity(AppConstants.opacitySubtle)
+                  ? primaryColor.withValues(alpha: AppConstants.opacitySubtle)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(AppConstants.radiusXL),
             ),

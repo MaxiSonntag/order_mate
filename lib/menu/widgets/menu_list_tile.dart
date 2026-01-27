@@ -120,7 +120,12 @@ class MenuOptionsSheet extends StatelessWidget {
 
   Future<void> _handleShare(BuildContext context) async {
     final navigator = Navigator.of(context);
-    await context.read<MenuShareRepository>().shareMenu(menu);
+    final box = context.findRenderObject() as RenderBox?;
+    final sharePositionOrigin =
+        box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+    await context
+        .read<MenuShareRepository>()
+        .shareMenu(menu, sharePositionOrigin: sharePositionOrigin);
     navigator.pop();
   }
 

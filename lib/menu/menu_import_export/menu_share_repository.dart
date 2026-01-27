@@ -1,25 +1,50 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:ordermate/menu/models/menu.dart';
 import 'package:ordermate/menu/models/menu_export.dart';
 import 'package:share_plus/share_plus.dart';
 
 class MenuShareRepository {
-  Future<void> shareMenu(Menu menu) async {
+  Future<void> shareMenu(Menu menu, {Rect? sharePositionOrigin}) async {
     final tempDirectory = await getTemporaryDirectory();
     final fileName =
         '${menu.name}_${DateTime.now().millisecondsSinceEpoch}.ordermate';
 
     final menuExport = MenuExport(1, DateTime.now(), menu);
     final fileRef = File('${tempDirectory.path}/$fileName')..createSync();
-    final jsonString = jsonEncode(
-      menuExport.toJson(),
-    );
+    final jsonString = jsonEncode(menuExport.toJson());
     final resultFile = await fileRef.writeAsString(jsonString);
 
-    await Share.shareXFiles([XFile(resultFile.path)]);
+    // Load app icon for share preview (Android only)
+    final iconData = await rootBundle.load('assets/app_icon.png');
+    final iconFile = File('${tempDirectory.path}/app_icon.png');
+    await iconFile.writeAsBytes(iconData.buffer.asUint8List());
+
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(resultFile.path)],
+        sharePositionOrigin: sharePositionOrigin,
+        title: fileName,
+        previewThumbnail: XFile(iconFile.path, mimeType: 'image/png'),
+        excludedCupertinoActivities: [
+          CupertinoActivityType.addToHomeScreen,
+          CupertinoActivityType.addToReadingList,
+          CupertinoActivityType.assignToContact,
+          CupertinoActivityType.collaborationCopyLink,
+          CupertinoActivityType.collaborationInviteWithLink,
+          CupertinoActivityType.markupAsPDF,
+          CupertinoActivityType.openInIBooks,
+          CupertinoActivityType.print,
+          CupertinoActivityType.saveToCameraRoll,
+        ],
+      ),
+    );
+
+    // Clean up temp files
     resultFile.deleteSync();
+    iconFile.deleteSync();
   }
 }
