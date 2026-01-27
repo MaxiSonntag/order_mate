@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:ordermate/components/outlined_icon_button.dart';
+import 'package:ordermate/components/action_button.dart';
+import 'package:ordermate/components/modern_app_bar.dart';
 import 'package:ordermate/menu/menus_cubit/menus_cubit.dart';
 import 'package:ordermate/menu/models/menu.dart';
 import 'package:ordermate/menu/models/product.dart';
@@ -52,12 +53,13 @@ class EditMenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isEdit ? menu!.name : context.translate.addProductList),
+      appBar: ModernAppBar(
+        title: isEdit ? menu!.name : context.translate.addProductList,
+        showBackButton: true,
         actions: [
-          IconButton(
-            onPressed: () => _saveMenu(context),
-            icon: const Icon(Icons.save),
+          GlassIconButton(
+            icon: Icons.save_outlined,
+            onTap: () => _saveMenu(context),
           ),
         ],
       ),
@@ -225,19 +227,21 @@ class ProductsFormField extends FormField<List<Product>> {
                    );
                  },
                ),
-               Row(
-                 children: [
-                   Expanded(
-                     child: Padding(
-                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                       child: OutlinedIconButton(
-                         icon: const Icon(Icons.add_outlined),
-                         onPressed: () => _openEditProductBottomSheet(state),
-                         child: Text(state.context.translate.addProduct),
-                       ),
-                     ),
+               Padding(
+                 padding: const EdgeInsets.symmetric(horizontal: 16),
+                 child: ActionButton(
+                   color: Theme.of(state.context).colorScheme.primary,
+                   height: 50,
+                   useSafeArea: false,
+                   margin: EdgeInsets.zero,
+                   onPressed: () => _openEditProductBottomSheet(state),
+                   child: ActionButtonContent(
+                     icon: Icons.add_outlined,
+                     label: state.context.translate.addProduct,
+                     color: Theme.of(state.context).colorScheme.primary,
+                     centered: true,
                    ),
-                 ],
+                 ),
                ),
              ],
            );
@@ -540,16 +544,18 @@ class _EditProductSheetState extends State<EditProductSheet> {
                       },
                     ),
                     const SizedBox(height: 12.0),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedIconButton(
-                            icon: const Icon(Icons.save_outlined),
-                            onPressed: () => _save(context),
-                            child: Text(context.translate.save),
-                          ),
-                        ),
-                      ],
+                    ActionButton(
+                      color: Theme.of(context).colorScheme.primary,
+                      height: 50,
+                      useSafeArea: false,
+                      margin: EdgeInsets.zero,
+                      onPressed: () => _save(context),
+                      child: ActionButtonContent(
+                        icon: Icons.save_outlined,
+                        label: context.translate.save,
+                        color: Theme.of(context).colorScheme.primary,
+                        centered: true,
+                      ),
                     ),
                   ],
                 );

@@ -45,6 +45,30 @@ extension ColorX on Color {
         ? Colors.white
         : Colors.black;
   }
+
+  /// Basically the opposite of foregroundTextColor
+  Color get textSurfaceColor {
+    // Relative luminance per WCAG (sRGB -> linear -> luminance)
+    double toLinear(int c) {
+      final v = c / 255.0;
+      return (v <= 0.03928)
+          ? (v / 12.92)
+          : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
+    }
+
+    final r = toLinear(red);
+    final g = toLinear(green);
+    final b = toLinear(blue);
+    final luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+    // Contrast ratio with white/black (WCAG)
+    final contrastWithWhite = (1.0 + 0.05) / (luminance + 0.05);
+    final contrastWithBlack = (luminance + 0.05) / (0.0 + 0.05);
+
+    return (contrastWithWhite >= contrastWithBlack)
+        ? Colors.black
+        : Colors.white;
+  }
 }
 
 extension OrdersSum on List<ProductOrder> {

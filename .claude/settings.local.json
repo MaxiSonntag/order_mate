@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__dart__analyze_files",
+      "mcp__dart__dart_format"
+    ]
+  }
+}
