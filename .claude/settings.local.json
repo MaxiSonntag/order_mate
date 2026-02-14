@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__dart__analyze_files",
+      "mcp__dart__dart_format",
+      "Bash(flutter pub get:*)",
+      "mcp__dart__hover",
+      "Bash(find:*)"
+    ]
+  }
+}

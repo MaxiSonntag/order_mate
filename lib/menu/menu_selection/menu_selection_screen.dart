@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ordermate/components/outlined_icon_button.dart';
+import 'package:ordermate/components/action_button.dart';
+import 'package:ordermate/components/modern_app_bar.dart';
 import 'package:ordermate/menu/edit_menu_screen.dart';
 import 'package:ordermate/menu/menu_import_export/menu_import_cubit.dart';
 import 'package:ordermate/menu/menu_selection/menu_selection_cubit.dart';
@@ -26,12 +27,13 @@ class MenuSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.translate.productLists),
+      appBar: ModernAppBar(
+        title: context.translate.productLists,
+        showBackButton: true,
         actions: [
-          IconButton(
-            onPressed: () => _openAddSheet(context),
-            icon: const Icon(Icons.add),
+          GlassIconButton(
+            icon: Icons.add,
+            onTap: () => _openAddSheet(context),
           ),
         ],
       ),
@@ -133,12 +135,19 @@ class MenusList extends StatelessWidget {
                 context.translate.noProductLists,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12.0),
-              OutlinedIconButton(
-                icon: const Icon(Icons.add_outlined),
+              const SizedBox(height: 16.0),
+              ActionButton(
+                color: Theme.of(context).colorScheme.primary,
+                height: 50,
+                useSafeArea: false,
+                margin: EdgeInsets.zero,
                 onPressed: onAddMenu,
-                child: Text(context.translate.addOrImport),
-              )
+                child: ActionButtonContent(
+                  icon: Icons.add_outlined,
+                  label: context.translate.addOrImport,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
             ],
           ),
         ),

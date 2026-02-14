@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ordermate/calculator/calculator_screen.dart';
-import 'package:ordermate/components/outlined_icon_button.dart';
+import 'package:ordermate/components/action_button.dart';
+import 'package:ordermate/components/modern_app_bar.dart';
 import 'package:ordermate/menu/menu_selection/menu_selection_cubit.dart';
 import 'package:ordermate/menu/menu_selection/menu_selection_screen.dart';
 import 'package:ordermate/menu/models/menu.dart';
@@ -97,8 +98,9 @@ class OrderOverviewScreen extends StatelessWidget {
             child: BlocProvider.value(
               value: context.read<OrderCubit>(),
               child: Scaffold(
-                appBar: AppBar(
-                  title: Text(order.name),
+                appBar: ModernAppBar(
+                  title: order.name,
+                  showBackButton: true,
                 ),
                 body: ProductOrderView(
                   readOnly: true,
@@ -150,15 +152,13 @@ class OrderOverviewScreen extends StatelessWidget {
     return BlocBuilder<MenuSelectionCubit, Menu?>(
       builder: (context, menu) {
         return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              menu?.name ?? context.translate.noProductListSelected,
-            ),
+          appBar: ModernAppBar(
+            title: menu?.name ?? context.translate.noProductListSelected,
             actions: [
-              IconButton(
-                onPressed: () => _navigateToSettings(context),
-                icon: const Icon(Icons.settings),
-              )
+              GlassIconButton(
+                icon: Icons.settings_outlined,
+                onTap: () => _navigateToSettings(context),
+              ),
             ],
           ),
           floatingActionButton: FloatingActionButton(
@@ -178,11 +178,18 @@ class OrderOverviewScreen extends StatelessWidget {
                           context.translate.noProductListSelectedDesc,
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 12.0),
-                        OutlinedIconButton(
-                          icon: const Icon(Icons.settings_outlined),
+                        const SizedBox(height: 16.0),
+                        ActionButton(
+                          color: Theme.of(context).colorScheme.primary,
+                          height: 50,
+                          useSafeArea: false,
+                          margin: EdgeInsets.zero,
                           onPressed: () => _navigateToMenuSelection(context),
-                          child: Text(context.translate.goToSettings),
+                          child: ActionButtonContent(
+                            icon: Icons.settings_outlined,
+                            label: context.translate.goToSettings,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                         ),
                       ],
                     ),

@@ -17,6 +17,7 @@ import 'package:ordermate/calculator/calculator_screen.dart';
 import 'package:ordermate/menu/menu_selection/menu_selection_cubit.dart';
 import 'package:ordermate/menu/menus_cubit/menus_cubit.dart';
 import 'package:ordermate/order/order_cubit.dart';
+import 'package:ordermate/utils/constants.dart';
 
 import 'menu/menu_import_export/file_ingress.dart';
 
@@ -29,8 +30,9 @@ void main() async {
   FileIngress.init(fetchInitial: true);
 
   HydratedBloc.storage = await HydratedStorage.build(
-    storageDirectory:
-        HydratedStorageDirectory((await getTemporaryDirectory()).path),
+    storageDirectory: HydratedStorageDirectory(
+      (await getTemporaryDirectory()).path,
+    ),
   );
 
   runApp(const OrderMate());
@@ -43,54 +45,96 @@ class OrderMate extends StatelessWidget with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) => MenusCubit()..loadMenus(),
-        ),
-        BlocProvider(
-          create: (context) => MenuSelectionCubit(),
-        ),
-        BlocProvider(
-          create: (context) => OrderCubit(),
-        ),
-        BlocProvider(
-          create: (context) => InputColumnsCubit(),
-        ),
-        BlocProvider(
-          create: (context) => MenuImportCubit(),
-        ),
+        BlocProvider(create: (context) => MenusCubit()..loadMenus()),
+        BlocProvider(create: (context) => MenuSelectionCubit()),
+        BlocProvider(create: (context) => OrderCubit()),
+        BlocProvider(create: (context) => InputColumnsCubit()),
+        BlocProvider(create: (context) => MenuImportCubit()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        theme: ThemeData.from(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 139, 191, 66),
-          ),
-        ).copyWith(
-          inputDecorationTheme: const InputDecorationTheme(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(8),
+        theme:
+            ThemeData.from(
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: AppConstants.primaryColor,
+                brightness: Brightness.light,
               ),
-            ),
-          ),
-          bottomSheetTheme: const BottomSheetThemeData(
-            showDragHandle: true,
-          ),
-          outlinedButtonTheme: const OutlinedButtonThemeData(
-            style: ButtonStyle(
-              shape: WidgetStatePropertyAll(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(8),
+            ).copyWith(
+              scaffoldBackgroundColor: AppConstants.scaffoldBackground,
+              appBarTheme: const AppBarTheme(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+              ),
+              inputDecorationTheme: InputDecorationTheme(
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppConstants.radiusXL),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppConstants.radiusXL),
+                  borderSide: BorderSide(color: Colors.grey.shade200),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppConstants.radiusXL),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF476121),
+                    width: 2,
+                  ),
+                ),
+              ),
+              bottomSheetTheme: BottomSheetThemeData(
+                showDragHandle: true,
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppConstants.radiusPill),
+                ),
+              ),
+              cardTheme: CardThemeData(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppConstants.radiusRound),
+                ),
+                color: Colors.white,
+              ),
+              outlinedButtonTheme: OutlinedButtonThemeData(
+                style: ButtonStyle(
+                  padding: WidgetStatePropertyAll(
+                    EdgeInsets.symmetric(
+                      horizontal: AppConstants.spacingXXL,
+                      vertical: AppConstants.spacingM + 2,
+                    ),
+                  ),
+                  shape: WidgetStatePropertyAll(
+                    RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(AppConstants.radiusL),
+                    ),
+                  ),
+                ),
+              ),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ButtonStyle(
+                  padding: WidgetStatePropertyAll(
+                    EdgeInsets.symmetric(
+                      horizontal: AppConstants.spacingXXL,
+                      vertical: AppConstants.spacingM + 2,
+                    ),
+                  ),
+                  shape: WidgetStatePropertyAll(
+                    RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(AppConstants.radiusL),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ),
         home: const OrderMateApp(),
       ),
     );
@@ -128,37 +172,39 @@ class _OrderMateAppState extends State<OrderMateApp>
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => MultipleOrdersCubit(
-            context.read<OrderCubit>().state,
-          )..publishState(),
+          create: (context) =>
+              MultipleOrdersCubit(context.read<OrderCubit>().state)
+                ..publishState(),
         ),
       ],
-      child: Builder(builder: (context) {
-        // Set initial settings state
-        context.read<OrderCubit>().setMultipleOrdersAllowed(
-              context.read<MultipleOrdersCubit>().state,
-            );
+      child: Builder(
+        builder: (context) {
+          // Set initial settings state
+          context.read<OrderCubit>().setMultipleOrdersAllowed(
+            context.read<MultipleOrdersCubit>().state,
+          );
 
-        return BlocListener<OrderCubit, List<CustomerOrder>>(
-          listener: (context, order) {
-            context.read<MultipleOrdersCubit>().setCurrentOrder(order);
-          },
-          child: BlocConsumer<MultipleOrdersCubit, bool>(
-            listener: (context, multipleOrdersAllowed) {
-              context
-                  .read<OrderCubit>()
-                  .setMultipleOrdersAllowed(multipleOrdersAllowed);
+          return BlocListener<OrderCubit, List<CustomerOrder>>(
+            listener: (context, order) {
+              context.read<MultipleOrdersCubit>().setCurrentOrder(order);
             },
-            builder: (context, multipleOrdersAllowed) {
-              if (!multipleOrdersAllowed) {
-                return CalculatorScreen();
-              }
+            child: BlocConsumer<MultipleOrdersCubit, bool>(
+              listener: (context, multipleOrdersAllowed) {
+                context.read<OrderCubit>().setMultipleOrdersAllowed(
+                  multipleOrdersAllowed,
+                );
+              },
+              builder: (context, multipleOrdersAllowed) {
+                if (!multipleOrdersAllowed) {
+                  return CalculatorScreen();
+                }
 
-              return const OrderOverviewScreen();
-            },
-          ),
-        );
-      }),
+                return const OrderOverviewScreen();
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 
