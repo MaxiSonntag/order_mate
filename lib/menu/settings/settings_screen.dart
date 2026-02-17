@@ -107,7 +107,6 @@ class SettingsScreen extends StatelessWidget {
 
   (int, int) _getPossibleInputColumns(BuildContext context) {
     final shortestSide = MediaQuery.of(context).size.shortestSide;
-    print(shortestSide);
     if (shortestSide <= 450) {
       // 14 Pro Max = 430
       return (2, 2);

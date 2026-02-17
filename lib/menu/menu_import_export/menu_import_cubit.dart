@@ -55,7 +55,6 @@ class MenuImportCubit extends Cubit<MenuImportState> {
       );
       emit(MenuImported(saveMenu));
     } catch (e) {
-      print(e);
       emit(MenuImportFailure());
     }
   }
