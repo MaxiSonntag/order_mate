@@ -209,4 +209,14 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get insertDividerBelowDesc =>
       'So lassen sich \"Sektionen\" in der Produktauswahl erstellen';
+
+  @override
+  String get calculateChangeTitle => 'Wechselgeld berechnen';
+
+  @override
+  String get calculateChangeDesc =>
+      'Öffnet ein Fenster zur Berechnung des Wechselgelds bei Abschließen einer Bestellung oder Teilen der Rechnung';
+
+  @override
+  String get change => 'Rückgeld';
 }

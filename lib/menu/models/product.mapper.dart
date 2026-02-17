@@ -2,6 +2,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 // ignore_for_file: type=lint
+// ignore_for_file: invalid_use_of_protected_member
 // ignore_for_file: unused_element, unnecessary_cast, override_on_non_overriding_member
 // ignore_for_file: strict_raw_type, inference_failure_on_untyped_parameter
 
@@ -44,12 +45,6 @@ class ProductMapper extends ClassMapperBase<Product> {
     opt: true,
     def: false,
   );
-  static Color _$color(Product v) => v.color;
-  static const Field<Product, Color> _f$color = Field(
-    'color',
-    _$color,
-    mode: FieldMode.member,
-  );
 
   @override
   final MappableFields<Product> fields = const {
@@ -59,7 +54,6 @@ class ProductMapper extends ClassMapperBase<Product> {
     #sortingKey: _f$sortingKey,
     #hexColor: _f$hexColor,
     #isSectionEnd: _f$isSectionEnd,
-    #color: _f$color,
   };
 
   static Product _instantiate(DecodingData data) {

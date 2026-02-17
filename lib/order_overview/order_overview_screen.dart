@@ -33,9 +33,7 @@ class OrderOverviewScreen extends StatelessWidget {
 
   void _navigateToMenuSelection(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const MenuSelectionScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const MenuSelectionScreen()),
     );
   }
 
@@ -56,7 +54,10 @@ class OrderOverviewScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _openOrderActionsSheet(BuildContext context, CustomerOrder order) async {
+  Future<void> _openOrderActionsSheet(
+    BuildContext context,
+    CustomerOrder order,
+  ) async {
     final finishActionColor = Theme.of(context).colorScheme.primary;
 
     showModalBottomSheet(
@@ -98,14 +99,8 @@ class OrderOverviewScreen extends StatelessWidget {
             child: BlocProvider.value(
               value: context.read<OrderCubit>(),
               child: Scaffold(
-                appBar: ModernAppBar(
-                  title: order.name,
-                  showBackButton: true,
-                ),
-                body: ProductOrderView(
-                  readOnly: true,
-                  orderName: order.name,
-                ),
+                appBar: ModernAppBar(title: order.name, showBackButton: true),
+                body: ProductOrderView(readOnly: true, orderName: order.name),
               ),
             ),
           ),
@@ -132,9 +127,7 @@ class OrderOverviewScreen extends StatelessWidget {
             onPressed: () => Navigator.pop(context, true),
             child: Text(
               context.translate.delete,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ),
         ],
@@ -199,9 +192,7 @@ class OrderOverviewScreen extends StatelessWidget {
               return BlocBuilder<OrderCubit, List<CustomerOrder>>(
                 builder: (context, customerOrders) {
                   if (customerOrders.isEmpty) {
-                    return Center(
-                      child: Text(context.translate.noOrdersYet),
-                    );
+                    return Center(child: Text(context.translate.noOrdersYet));
                   }
                   return ListView(
                     children: [

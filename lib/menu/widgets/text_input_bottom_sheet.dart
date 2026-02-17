@@ -53,9 +53,7 @@ class TextInputBottomSheet extends StatelessWidget {
                         child: TextFormField(
                           controller: _inputCtrl,
                           focusNode: _inputNode..requestFocus(),
-                          decoration: InputDecoration(
-                            label: Text(displayName),
-                          ),
+                          decoration: InputDecoration(label: Text(displayName)),
                           textInputAction: TextInputAction.done,
                           maxLines: 1,
                           onFieldSubmitted: (_) => _submitSetting(context),

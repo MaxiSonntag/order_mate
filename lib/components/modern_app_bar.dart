@@ -101,13 +101,15 @@ class _GlassIconButtonState extends State<GlassIconButton> {
             width: AppConstants.glassButtonSize,
             height: AppConstants.glassButtonSize,
             decoration: BoxDecoration(
-              color: ColorScheme.of(context)
-                  .primary
-                  .withValues(alpha: AppConstants.opacitySubtle),
+              color: ColorScheme.of(
+                context,
+              ).primary.withValues(alpha: AppConstants.opacitySubtle),
               borderRadius: BorderRadius.circular(AppConstants.radiusL),
               boxShadow: [
                 BoxShadow(
-                  color: ColorScheme.of(context).primary.withValues(alpha: 0.06),
+                  color: ColorScheme.of(
+                    context,
+                  ).primary.withValues(alpha: 0.06),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

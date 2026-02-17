@@ -7,6 +7,7 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:ordermate/hive/hive_registrar.g.dart';
 import 'package:ordermate/menu/menu_import_export/menu_import_cubit.dart';
 import 'package:ordermate/menu/menu_selection/menu_selection_screen.dart';
+import 'package:ordermate/menu/settings/cubits/calculate_change_cubit.dart';
 import 'package:ordermate/menu/settings/cubits/input_columns_cubit.dart';
 import 'package:ordermate/menu/settings/cubits/multiple_orders_cubit.dart';
 import 'package:ordermate/order_overview/customer_order.dart';
@@ -50,6 +51,7 @@ class OrderMate extends StatelessWidget with WidgetsBindingObserver {
         BlocProvider(create: (context) => OrderCubit()),
         BlocProvider(create: (context) => InputColumnsCubit()),
         BlocProvider(create: (context) => MenuImportCubit()),
+        BlocProvider(create: (context) => CalculateChangeCubit()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -112,8 +114,7 @@ class OrderMate extends StatelessWidget with WidgetsBindingObserver {
                   ),
                   shape: WidgetStatePropertyAll(
                     RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppConstants.radiusL),
+                      borderRadius: BorderRadius.circular(AppConstants.radiusL),
                     ),
                   ),
                 ),
@@ -128,8 +129,7 @@ class OrderMate extends StatelessWidget with WidgetsBindingObserver {
                   ),
                   shape: WidgetStatePropertyAll(
                     RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppConstants.radiusL),
+                      borderRadius: BorderRadius.circular(AppConstants.radiusL),
                     ),
                   ),
                 ),

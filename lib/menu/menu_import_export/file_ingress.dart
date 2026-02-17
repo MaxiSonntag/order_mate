@@ -11,7 +11,9 @@ class FileIngress {
 
     _ch.setMethodCallHandler((call) async {
       if (call.method == 'onFileOpened') {
-        final paths = (call.arguments as List).map((e) => e.toString()).toList();
+        final paths = (call.arguments as List)
+            .map((e) => e.toString())
+            .toList();
         _add(paths);
       }
     });
@@ -57,7 +59,7 @@ class FileIngress {
 
   static final List<List<String>> _buffer = <List<String>>[];
   static final StreamController<List<String>> _live =
-  StreamController<List<String>>.broadcast();
+      StreamController<List<String>>.broadcast();
 
   static void _add(List<String> paths) {
     if (paths.isEmpty) return;

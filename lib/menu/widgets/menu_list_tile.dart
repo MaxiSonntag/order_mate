@@ -11,19 +11,13 @@ class MenuListTile extends StatelessWidget {
   final Menu menu;
   final bool isSelected;
 
-  const MenuListTile({
-    super.key,
-    required this.menu,
-    this.isSelected = false,
-  });
+  const MenuListTile({super.key, required this.menu, this.isSelected = false});
 
   void _openOptionsSheet(BuildContext context, Menu menu, bool isSelected) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => MenuOptionsSheet(
-        menu: menu,
-        isSelected: isSelected,
-      ),
+      builder: (context) =>
+          MenuOptionsSheet(menu: menu, isSelected: isSelected),
     );
   }
 
@@ -31,17 +25,10 @@ class MenuListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: isSelected
-          ? const Icon(
-              Icons.check_circle_outline,
-              color: Colors.green,
-            )
+          ? const Icon(Icons.check_circle_outline, color: Colors.green)
           : null,
       title: Text(menu.name),
-      onTap: () => _openOptionsSheet(
-        context,
-        menu,
-        isSelected,
-      ),
+      onTap: () => _openOptionsSheet(context, menu, isSelected),
     );
   }
 }
@@ -60,42 +47,42 @@ class MenuOptionsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return RepositoryProvider(
       create: (context) => MenuShareRepository(),
-      child: Builder(builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.check_circle_outline),
-                title: Text(context.translate.select),
-                onTap: () => _handleSelect(context),
-              ),
-              ListTile(
-                leading: const Icon(Icons.edit_outlined),
-                title: Text(context.translate.edit),
-                onTap: () => _handleEdit(context),
-              ),
-              ListTile(
-                leading: const Icon(Icons.share_outlined),
-                title: Text(context.translate.share),
-                onTap: () => _handleShare(context),
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete_outline),
-                title: Text(context.translate.delete),
-                subtitle: isSelected
-                    ? Text(
-                        context.translate.deletionDisabledDesc,
-                      )
-                    : null,
-                enabled: !isSelected,
-                onTap: () => _handleDelete(context),
-              ),
-            ],
-          ),
-        );
-      }),
+      child: Builder(
+        builder: (context) {
+          return SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.check_circle_outline),
+                  title: Text(context.translate.select),
+                  onTap: () => _handleSelect(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.edit_outlined),
+                  title: Text(context.translate.edit),
+                  onTap: () => _handleEdit(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.share_outlined),
+                  title: Text(context.translate.share),
+                  onTap: () => _handleShare(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.delete_outline),
+                  title: Text(context.translate.delete),
+                  subtitle: isSelected
+                      ? Text(context.translate.deletionDisabledDesc)
+                      : null,
+                  enabled: !isSelected,
+                  onTap: () => _handleDelete(context),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -110,9 +97,7 @@ class MenuOptionsSheet extends StatelessWidget {
 
     navigator.pop(context);
     await navigator.push(
-      MaterialPageRoute(
-        builder: (context) => EditMenuScreen(menu: menu),
-      ),
+      MaterialPageRoute(builder: (context) => EditMenuScreen(menu: menu)),
     );
 
     await menusCubit.loadMenus();
@@ -121,11 +106,13 @@ class MenuOptionsSheet extends StatelessWidget {
   Future<void> _handleShare(BuildContext context) async {
     final navigator = Navigator.of(context);
     final box = context.findRenderObject() as RenderBox?;
-    final sharePositionOrigin =
-        box != null ? box.localToGlobal(Offset.zero) & box.size : null;
-    await context
-        .read<MenuShareRepository>()
-        .shareMenu(menu, sharePositionOrigin: sharePositionOrigin);
+    final sharePositionOrigin = box != null
+        ? box.localToGlobal(Offset.zero) & box.size
+        : null;
+    await context.read<MenuShareRepository>().shareMenu(
+      menu,
+      sharePositionOrigin: sharePositionOrigin,
+    );
     navigator.pop();
   }
 

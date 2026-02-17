@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ordermate/components/modern_app_bar.dart';
 import 'package:ordermate/menu/menu_selection/menu_selection_screen.dart';
+import 'package:ordermate/menu/settings/cubits/calculate_change_cubit.dart';
 import 'package:ordermate/menu/settings/cubits/input_columns_cubit.dart';
 import 'package:ordermate/menu/settings/cubits/multiple_orders_cubit.dart';
 import 'package:ordermate/menu/settings/settings_errors.dart';
@@ -12,17 +13,13 @@ class SettingsScreen extends StatelessWidget {
 
   void _navigateToSettings(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const MenuSelectionScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const MenuSelectionScreen()),
     );
   }
 
   void _showMultipleOrdersError(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.translate.multipleOrdersError),
-      ),
+      SnackBar(content: Text(context.translate.multipleOrdersError)),
     );
   }
 
@@ -71,15 +68,28 @@ class SettingsScreen extends StatelessWidget {
                   },
                   value: inputColumnCount,
                   items: [
-                    for (int i = possibleInputColumns.$1;
-                        i <= possibleInputColumns.$2;
-                        i++)
-                      DropdownMenuItem(
-                        value: i,
-                        child: Text('$i'),
-                      ),
+                    for (
+                      int i = possibleInputColumns.$1;
+                      i <= possibleInputColumns.$2;
+                      i++
+                    )
+                      DropdownMenuItem(value: i, child: Text('$i')),
                   ],
                 ),
+              );
+            },
+          ),
+          // Calculate change
+          BlocBuilder<CalculateChangeCubit, bool>(
+            builder: (context, calculateChange) {
+              return SwitchListTile(
+                controlAffinity: ListTileControlAffinity.trailing,
+                value: calculateChange,
+                onChanged: (_) => context
+                    .read<CalculateChangeCubit>()
+                    .toggleCalculateChange(),
+                title: Text(context.translate.calculateChangeTitle),
+                subtitle: Text(context.translate.calculateChangeDesc),
               );
             },
           ),

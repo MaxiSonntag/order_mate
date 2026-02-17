@@ -55,9 +55,9 @@ class ModernBottomNav extends StatelessWidget {
                     customerOrders
                         .firstWhereOrNull(
                           (element) => element.name == orderName,
-                    )
+                        )
                         ?.order ??
-                        [];
+                    [];
                 return _NavItem(
                   icon: Icons.shopping_bag_outlined,
                   label: context.translate.order,
@@ -152,7 +152,9 @@ class _NavItemState extends State<_NavItem> {
                           ),
                           decoration: BoxDecoration(
                             color: primaryColor,
-                            borderRadius: BorderRadius.circular(AppConstants.radiusS),
+                            borderRadius: BorderRadius.circular(
+                              AppConstants.radiusS,
+                            ),
                           ),
                           constraints: const BoxConstraints(minWidth: 18),
                           child: Text(

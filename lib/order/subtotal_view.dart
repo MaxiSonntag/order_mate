@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ordermate/components/action_button.dart';
+import 'package:ordermate/menu/settings/cubits/calculate_change_cubit.dart';
 import 'package:ordermate/components/modern_app_bar.dart';
+import 'package:ordermate/order/calculate_change_sheet.dart';
 import 'package:ordermate/order/order_list.dart';
 import 'package:ordermate/order/product_order.dart';
 import 'package:ordermate/order/subtotal_cubit.dart';
@@ -104,38 +106,41 @@ class SubtotalView extends StatelessWidget {
                   const Divider(height: 8),
                   Expanded(
                     child: Material(
-                      child: BlocSelector<
-                        SubtotalCubit,
-                        ({
-                          List<ProductOrder> availableProducts,
-                          List<ProductOrder> subtotalProducts,
-                        }),
-                        List<ProductOrder>
-                      >(
-                        selector: (state) => state.subtotalProducts,
-                        builder: (context, state) {
-                          return OrderList(
-                            useTopGradient: true,
-                            useBottomGradient: true,
-                            order: state,
-                            emptyHintText:
-                                context.translate.splitBillNoProducts,
-                            onTap: (product) => context
-                                .read<SubtotalCubit>()
-                                .removeFromSubtotal(product),
-                          );
-                        },
-                      ),
+                      child:
+                          BlocSelector<
+                            SubtotalCubit,
+                            ({
+                              List<ProductOrder> availableProducts,
+                              List<ProductOrder> subtotalProducts,
+                            }),
+                            List<ProductOrder>
+                          >(
+                            selector: (state) => state.subtotalProducts,
+                            builder: (context, state) {
+                              return OrderList(
+                                useTopGradient: true,
+                                useBottomGradient: true,
+                                order: state,
+                                emptyHintText:
+                                    context.translate.splitBillNoProducts,
+                                onTap: (product) => context
+                                    .read<SubtotalCubit>()
+                                    .removeFromSubtotal(product),
+                              );
+                            },
+                          ),
                     ),
                   ),
                   Builder(
                     builder: (context) {
-                      final subtotalOrder =
-                          context.select<SubtotalCubit, List<ProductOrder>>(
-                        (subtotalCubit) => subtotalCubit.state.subtotalProducts,
-                      );
-                      final bottomPadding =
-                          MediaQuery.of(context).padding.bottom;
+                      final subtotalOrder = context
+                          .select<SubtotalCubit, List<ProductOrder>>(
+                            (subtotalCubit) =>
+                                subtotalCubit.state.subtotalProducts,
+                          );
+                      final bottomPadding = MediaQuery.of(
+                        context,
+                      ).padding.bottom;
                       return ActionButton(
                         color: AppConstants.amberAction,
                         height: AppConstants.buttonHeightLarge,
@@ -262,6 +267,36 @@ class SubtotalView extends StatelessWidget {
       ),
     );
 
-    return result;
+    if (result != true) {
+      return result;
+    }
+
+    if (!context.mounted) {
+      return null;
+    }
+
+    final splitFinished = await _calcChangeIfNecessary(context);
+    if (!splitFinished) {
+      return null;
+    }
+
+    return true;
+  }
+
+  Future<bool> _calcChangeIfNecessary(BuildContext context) async {
+    if (!context.read<CalculateChangeCubit>().state) {
+      return true;
+    }
+
+    final subtotalProducts = context
+        .read<SubtotalCubit>()
+        .state
+        .subtotalProducts;
+    return (await CalculateChangeSheet.show(
+          context,
+          orderName: context.translate.splitBill,
+          sum: subtotalProducts.sum,
+        )) ??
+        false;
   }
 }

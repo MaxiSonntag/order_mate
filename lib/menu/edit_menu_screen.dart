@@ -71,9 +71,7 @@ class EditMenuScreen extends StatelessWidget {
             autovalidateMode: autovalidate,
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 12.0,
-                ),
+                padding: const EdgeInsets.symmetric(vertical: 12.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,8 +168,9 @@ class ProductsFormField extends FormField<List<Product>> {
                    final updatedProducts = reordered
                        .asMap()
                        .entries
-                       .map((entry) =>
-                           entry.value.copyWith(sortingKey: entry.key))
+                       .map(
+                         (entry) => entry.value.copyWith(sortingKey: entry.key),
+                       )
                        .toList();
 
                    state.didChange(updatedProducts);
@@ -186,7 +185,9 @@ class ProductsFormField extends FormField<List<Product>> {
                        mainAxisSize: MainAxisSize.min,
                        children: [
                          ListTile(
-                           contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                           contentPadding: const EdgeInsets.symmetric(
+                             horizontal: 16,
+                           ),
                            leading: Container(
                              width: 25,
                              height: 25,
@@ -203,8 +204,9 @@ class ProductsFormField extends FormField<List<Product>> {
                              children: [
                                Text(
                                  '${product.price.toStringAsFixed(2)}€',
-                                 style:
-                                     Theme.of(state.context).textTheme.bodyMedium,
+                                 style: Theme.of(
+                                   state.context,
+                                 ).textTheme.bodyMedium,
                                ),
                                SizedBox(width: 16),
                                Icon(Icons.reorder_outlined, color: Colors.grey),
@@ -215,7 +217,8 @@ class ProductsFormField extends FormField<List<Product>> {
                              product: product,
                              onDelete: () {
                                state.didChange(
-                                   [...state.value!]..remove(product));
+                                 [...state.value!]..remove(product),
+                               );
                                state.save();
                              },
                            ),

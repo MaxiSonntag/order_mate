@@ -8,6 +8,7 @@ class ActionButton extends StatefulWidget {
   final double? height;
   final bool useSafeArea;
   final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry? padding;
 
   const ActionButton({
     super.key,
@@ -17,6 +18,7 @@ class ActionButton extends StatefulWidget {
     this.height,
     this.useSafeArea = true,
     this.margin,
+    this.padding,
   });
 
   @override
@@ -28,8 +30,9 @@ class _ActionButtonState extends State<ActionButton> {
 
   @override
   Widget build(BuildContext context) {
-    final bottomPadding =
-        widget.useSafeArea ? MediaQuery.of(context).padding.bottom : 0.0;
+    final bottomPadding = widget.useSafeArea
+        ? MediaQuery.of(context).padding.bottom
+        : 0.0;
 
     final defaultMargin = EdgeInsets.only(
       left: AppConstants.spacingL,
@@ -61,6 +64,7 @@ class _ActionButtonState extends State<ActionButton> {
           ),
           child: Padding(
             padding:
+                widget.padding ??
                 EdgeInsets.symmetric(horizontal: AppConstants.spacingXL),
             child: widget.child,
           ),
@@ -89,14 +93,11 @@ class ActionButtonContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment:
-          centered ? MainAxisAlignment.center : MainAxisAlignment.start,
+      mainAxisAlignment: centered
+          ? MainAxisAlignment.center
+          : MainAxisAlignment.start,
       children: [
-        Icon(
-          icon,
-          color: color,
-          size: AppConstants.iconSizeL,
-        ),
+        Icon(icon, color: color, size: AppConstants.iconSizeL),
         const SizedBox(width: AppConstants.spacingM),
         Text(
           label,

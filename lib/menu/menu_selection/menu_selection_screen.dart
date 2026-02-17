@@ -31,55 +31,48 @@ class MenuSelectionScreen extends StatelessWidget {
         title: context.translate.productLists,
         showBackButton: true,
         actions: [
-          GlassIconButton(
-            icon: Icons.add,
-            onTap: () => _openAddSheet(context),
-          ),
+          GlassIconButton(icon: Icons.add, onTap: () => _openAddSheet(context)),
         ],
       ),
       body: BlocBuilder<MenuSelectionCubit, Menu?>(
         builder: (context, selectedMenu) =>
             BlocConsumer<MenusCubit, MenusState>(
-          listener: (context, state) {
-            if (state is MenusLoaded) {
-              final currentSelection = state.menus.where(
-                (element) => element.uuid == selectedMenu?.uuid,
-              );
-              if (currentSelection.isNotEmpty) {
-                context
-                    .read<MenuSelectionCubit>()
-                    .setSelectedMenu(currentSelection.first);
-              } else if (state.menus.isNotEmpty) {
-                context
-                    .read<MenuSelectionCubit>()
-                    .setSelectedMenu(state.menus.first);
-              }
-            }
-          },
-          builder: (context, state) {
-            if (state is MenusLoading) {
-              return PartialMenusList(
-                selectedMenu: selectedMenu,
-                isLoading: true,
-              );
-            }
-            if (state is MenusLoadingError || state is MenusInitial) {
-              return PartialMenusList(
-                selectedMenu: selectedMenu,
-              );
-            }
+              listener: (context, state) {
+                if (state is MenusLoaded) {
+                  final currentSelection = state.menus.where(
+                    (element) => element.uuid == selectedMenu?.uuid,
+                  );
+                  if (currentSelection.isNotEmpty) {
+                    context.read<MenuSelectionCubit>().setSelectedMenu(
+                      currentSelection.first,
+                    );
+                  } else if (state.menus.isNotEmpty) {
+                    context.read<MenuSelectionCubit>().setSelectedMenu(
+                      state.menus.first,
+                    );
+                  }
+                }
+              },
+              builder: (context, state) {
+                if (state is MenusLoading) {
+                  return PartialMenusList(
+                    selectedMenu: selectedMenu,
+                    isLoading: true,
+                  );
+                }
+                if (state is MenusLoadingError || state is MenusInitial) {
+                  return PartialMenusList(selectedMenu: selectedMenu);
+                }
 
-            final menus = (state as MenusLoaded).menus
-              ..sort(
-                (m1, m2) => m2.updatedAt.compareTo(m1.updatedAt),
-              );
-            return MenusList(
-              selectedMenu: selectedMenu,
-              menus: menus,
-              onAddMenu: () => _openAddSheet(context),
-            );
-          },
-        ),
+                final menus = (state as MenusLoaded).menus
+                  ..sort((m1, m2) => m2.updatedAt.compareTo(m1.updatedAt));
+                return MenusList(
+                  selectedMenu: selectedMenu,
+                  menus: menus,
+                  onAddMenu: () => _openAddSheet(context),
+                );
+              },
+            ),
       ),
     );
   }
@@ -101,10 +94,7 @@ class PartialMenusList extends StatelessWidget {
       children: [
         if (selectedMenu != null) MenuListTile(menu: selectedMenu!),
         const SizedBox(height: 16.0),
-        if (isLoading)
-          const Center(
-            child: CircularProgressIndicator(),
-          ),
+        if (isLoading) const Center(child: CircularProgressIndicator()),
       ],
     );
   }
@@ -213,9 +203,7 @@ class AddMenuSheet extends StatelessWidget {
   Widget _buildImportRunning() {
     return const Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        CircularProgressIndicator(),
-      ],
+      children: [CircularProgressIndicator()],
     );
   }
 
@@ -245,21 +233,10 @@ class AddMenuSheet extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(
-          Icons.check_circle_outline,
-          color: Colors.green,
-          size: 46,
-        ),
+        const Icon(Icons.check_circle_outline, color: Colors.green, size: 46),
         const SizedBox(height: 16.0),
-        Text(
-          menu.name,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          context.translate.productCount(menu.products.length),
-        ),
+        Text(menu.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(context.translate.productCount(menu.products.length)),
         const SizedBox(height: 16.0),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -290,9 +267,7 @@ class AddMenuSheet extends StatelessWidget {
 
     navigator.pop();
     await navigator.push(
-      MaterialPageRoute(
-        builder: (context) => EditMenuScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => EditMenuScreen()),
     );
 
     await menusCubit.loadMenus();

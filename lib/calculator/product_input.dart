@@ -157,10 +157,7 @@ class _ProductSelectionItemState extends State<ProductSelectionItem> {
     }
     if (mounted) {
       setState(() => _isPressed = false);
-      context.read<OrderCubit>().addProduct(
-            widget.orderName,
-            widget.product,
-          );
+      context.read<OrderCubit>().addProduct(widget.orderName, widget.product);
     }
   }
 

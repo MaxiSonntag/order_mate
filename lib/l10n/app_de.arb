@@ -59,5 +59,8 @@
   "splitBillConfirm": "Teilen",
   "importPermissionErrorMessage": "OrderMate hat keinen Zugriff auf die Datei – bitte erteile die Berechtigung oder verschiebe die Datein in einen lesbaren Ordner, der nicht auf einer externen Speicherkarte (SD-Karte) liegt (z.B. \"Downloads\")",
   "insertDividerBelowTitle": "Trennlinie nach diesem Produkt",
-  "insertDividerBelowDesc": "So lassen sich \"Sektionen\" in der Produktauswahl erstellen"
+  "insertDividerBelowDesc": "So lassen sich \"Sektionen\" in der Produktauswahl erstellen",
+  "calculateChangeTitle": "Wechselgeld berechnen",
+  "calculateChangeDesc": "Öffnet ein Fenster zur Berechnung des Wechselgelds bei Abschließen einer Bestellung oder Teilen der Rechnung",
+  "change": "Rückgeld"
 }

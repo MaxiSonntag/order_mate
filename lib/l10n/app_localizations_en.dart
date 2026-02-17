@@ -209,4 +209,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get insertDividerBelowDesc =>
       'This creates \'sections\' in the product selection';
+
+  @override
+  String get calculateChangeTitle => 'Calculate change';
+
+  @override
+  String get calculateChangeDesc =>
+      'Opens a window for calculating change when completing an order or splitting the bill';
+
+  @override
+  String get change => 'Change';
 }

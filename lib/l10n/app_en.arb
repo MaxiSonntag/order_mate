@@ -94,5 +94,8 @@
   "splitBillConfirm": "Split",
   "importPermissionErrorMessage": "OrderMate can't access the file – please grant storage permissions or move the file into a readable folder that's not in an external memory card (SD-card), e.g. 'Downloads'",
   "insertDividerBelowTitle": "Divider after this product",
-  "insertDividerBelowDesc": "This creates 'sections' in the product selection"
+  "insertDividerBelowDesc": "This creates 'sections' in the product selection",
+  "calculateChangeTitle": "Calculate change",
+  "calculateChangeDesc": "Opens a window for calculating change when completing an order or splitting the bill",
+  "change": "Change"
 }
