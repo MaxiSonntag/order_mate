@@ -6,6 +6,7 @@ import 'package:ordermate/menu/menu_selection/menu_selection_cubit.dart';
 import 'package:ordermate/menu/menus_cubit/menus_cubit.dart';
 import 'package:ordermate/menu/models/menu.dart';
 import 'package:ordermate/utils/extensions.dart';
+import 'package:ordermate/utils/semantics_ids.dart';
 
 class MenuListTile extends StatelessWidget {
   final Menu menu;
@@ -23,12 +24,16 @@ class MenuListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: isSelected
-          ? const Icon(Icons.check_circle_outline, color: Colors.green)
-          : null,
-      title: Text(menu.name),
-      onTap: () => _openOptionsSheet(context, menu, isSelected),
+    return Semantics(
+      identifier: AppSemanticsIds.menuSelectionMenuTile(menuName: menu.name),
+      button: true,
+      child: ListTile(
+        leading: isSelected
+            ? const Icon(Icons.check_circle_outline, color: Colors.green)
+            : null,
+        title: Text(menu.name),
+        onTap: () => _openOptionsSheet(context, menu, isSelected),
+      ),
     );
   }
 }
@@ -59,10 +64,14 @@ class MenuOptionsSheet extends StatelessWidget {
                   title: Text(context.translate.select),
                   onTap: () => _handleSelect(context),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.edit_outlined),
-                  title: Text(context.translate.edit),
-                  onTap: () => _handleEdit(context),
+                Semantics(
+                  identifier: AppSemanticsIds.menuOptionsEditButton,
+                  button: true,
+                  child: ListTile(
+                    leading: const Icon(Icons.edit_outlined),
+                    title: Text(context.translate.edit),
+                    onTap: () => _handleEdit(context),
+                  ),
                 ),
                 ListTile(
                   leading: const Icon(Icons.share_outlined),

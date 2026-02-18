@@ -5,6 +5,7 @@ import 'package:ordermate/order/order_cubit.dart';
 import 'package:ordermate/order_overview/customer_order.dart';
 import 'package:ordermate/utils/constants.dart';
 import 'package:ordermate/utils/extensions.dart';
+import 'package:ordermate/utils/semantics_ids.dart';
 
 class ModernBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -46,6 +47,7 @@ class ModernBottomNav extends StatelessWidget {
               label: context.translate.products,
               isSelected: currentIndex == 0,
               onTap: () => onTap(0),
+              semanticsIdentifier: AppSemanticsIds.bottomNavProductsTab,
             ),
           ),
           Expanded(
@@ -64,6 +66,7 @@ class ModernBottomNav extends StatelessWidget {
                   isSelected: currentIndex == 1,
                   badgeCount: order.isEmpty ? null : order.productCount,
                   onTap: () => onTap(1),
+                  semanticsIdentifier: AppSemanticsIds.bottomNavOrderTab,
                 );
               },
             ),
@@ -80,6 +83,7 @@ class _NavItem extends StatefulWidget {
   final bool isSelected;
   final int? badgeCount;
   final VoidCallback onTap;
+  final String? semanticsIdentifier;
 
   const _NavItem({
     required this.icon,
@@ -87,6 +91,7 @@ class _NavItem extends StatefulWidget {
     required this.isSelected,
     required this.onTap,
     this.badgeCount,
+    this.semanticsIdentifier,
   });
 
   @override
@@ -100,7 +105,7 @@ class _NavItemState extends State<_NavItem> {
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
 
-    return GestureDetector(
+    final navItem = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) => setState(() => _isPressed = false),
@@ -192,6 +197,16 @@ class _NavItemState extends State<_NavItem> {
           ),
         ),
       ),
+    );
+
+    if (widget.semanticsIdentifier == null) {
+      return navItem;
+    }
+
+    return Semantics(
+      identifier: widget.semanticsIdentifier,
+      button: true,
+      child: navItem,
     );
   }
 }

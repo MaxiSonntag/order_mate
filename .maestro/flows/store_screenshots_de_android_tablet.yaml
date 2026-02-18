@@ -1,0 +1,48 @@
+appId: de.msonntag.ordermate
+name: Create German Play Store screenshots (Android tablet)
+---
+- setOrientation: PORTRAIT
+
+- launchApp:
+    clearState: true
+
+- setOrientation: PORTRAIT
+
+- runFlow: subflows/android_import_products.yaml
+
+# Return to the calculator root.
+- tapOn:
+    id: 'app_bar.back_button'
+
+# Prepare tablet layout and calculation mode.
+- tapOn:
+    id: 'app_bar.settings_button'
+- tapOn:
+    id: 'settings.input_columns_option.2'
+- tapOn:
+    id: 'settings.input_columns_option.3'
+- tapOn:
+    id: 'settings.calculate_change_toggle'
+- tapOn:
+    id: 'app_bar.back_button'
+
+- runFlow: subflows/shared_seed_example_order.yaml
+
+# 01: tablet combined product input + current order view.
+- takeScreenshot: 01_input_order
+
+# 02: Open change calculation sheet.
+- runFlow: subflows/shared_open_change_with_50.yaml
+- takeScreenshot: 02_change
+
+# Navigate to list editing.
+- runFlow: subflows/shared_navigate_to_list_edit.yaml
+
+# 03: List edit screen.
+- assertVisible:
+    id: 'edit_menu.products_header'
+- takeScreenshot: 03_edit
+
+# 04: Product edit screen for Cola.
+- runFlow: subflows/shared_open_cola_product_edit.yaml
+- takeScreenshot: 04_product_edit

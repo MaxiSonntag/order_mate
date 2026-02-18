@@ -1,0 +1,14 @@
+appId: ${MAESTRO_SUBFLOW_APP_ID}
+name: Shared navigate to list edit
+---
+# Navigate from change sheet to list editing.
+- tapOn:
+    id: 'change_sheet.cancel_button'
+- tapOn:
+    id: 'app_bar.settings_button'
+- tapOn:
+    id: 'settings.product_lists_tile'
+- tapOn:
+    id: 'menu_selection.menu_tile.ordermate'
+- tapOn:
+    id: 'menu_options.edit_button'

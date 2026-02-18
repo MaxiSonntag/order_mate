@@ -476,6 +476,18 @@ abstract class AppLocalizations {
   /// **'Opens a window for calculating change when completing an order or splitting the bill'**
   String get calculateChangeDesc;
 
+  /// No description provided for @totalSum.
+  ///
+  /// In en, this message translates to:
+  /// **'Total sum'**
+  String get totalSum;
+
+  /// No description provided for @given.
+  ///
+  /// In en, this message translates to:
+  /// **'Given'**
+  String get given;
+
   /// No description provided for @change.
   ///
   /// In en, this message translates to:

@@ -97,5 +97,7 @@
   "insertDividerBelowDesc": "This creates 'sections' in the product selection",
   "calculateChangeTitle": "Calculate change",
   "calculateChangeDesc": "Opens a window for calculating change when completing an order or splitting the bill",
+  "totalSum": "Total sum",
+  "given": "Given",
   "change": "Change"
 }

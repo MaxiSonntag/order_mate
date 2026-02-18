@@ -218,5 +218,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Opens a window for calculating change when completing an order or splitting the bill';
 
   @override
+  String get totalSum => 'Total sum';
+
+  @override
+  String get given => 'Given';
+
+  @override
   String get change => 'Change';
 }

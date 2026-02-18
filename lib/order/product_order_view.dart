@@ -13,6 +13,7 @@ import 'package:ordermate/order/subtotal_view.dart';
 import 'package:ordermate/order_overview/customer_order.dart';
 import 'package:ordermate/utils/constants.dart';
 import 'package:ordermate/utils/extensions.dart';
+import 'package:ordermate/utils/semantics_ids.dart';
 
 class ProductOrderView extends StatelessWidget {
   final String orderName;
@@ -371,6 +372,7 @@ class SumButton extends StatelessWidget {
         );
 
         return ActionButton(
+          semanticsIdentifier: AppSemanticsIds.orderSumButton,
           color: color,
           height: height,
           useSafeArea: useSafeArea,

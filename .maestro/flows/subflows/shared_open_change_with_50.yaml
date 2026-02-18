@@ -1,0 +1,12 @@
+appId: ${MAESTRO_SUBFLOW_APP_ID}
+name: Shared open change with 50
+---
+# Open change calculation sheet and select 50.00.
+- tapOn:
+    id: 'order.sum_button'
+- assertVisible:
+    id: 'change_sheet.total_title'
+- assertVisible:
+    id: 'change_sheet.quick_option.50_00'
+- tapOn:
+    id: 'change_sheet.quick_option.50_00'

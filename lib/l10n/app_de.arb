@@ -62,5 +62,7 @@
   "insertDividerBelowDesc": "So lassen sich \"Sektionen\" in der Produktauswahl erstellen",
   "calculateChangeTitle": "Wechselgeld berechnen",
   "calculateChangeDesc": "Öffnet ein Fenster zur Berechnung des Wechselgelds bei Abschließen einer Bestellung oder Teilen der Rechnung",
+  "totalSum": "Gesamtbetrag",
+  "given": "Gegeben",
   "change": "Rückgeld"
 }

@@ -57,3 +57,7 @@ app.*.map.json
 # FVM Version Cache
 .fvm/
 android/app/.cxx
+
+# Maestro store screenshots
+de_appstore_products.json
+/.maestro/screenshots/

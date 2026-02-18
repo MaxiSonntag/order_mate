@@ -7,6 +7,7 @@ import 'package:ordermate/menu/settings/cubits/input_columns_cubit.dart';
 import 'package:ordermate/menu/settings/cubits/multiple_orders_cubit.dart';
 import 'package:ordermate/menu/settings/settings_errors.dart';
 import 'package:ordermate/utils/extensions.dart';
+import 'package:ordermate/utils/semantics_ids.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -62,19 +63,31 @@ class SettingsScreen extends StatelessWidget {
               return ListTile(
                 title: Text(context.translate.inputColumns),
                 subtitle: Text(context.translate.inputColumnsDesc),
-                trailing: DropdownButton<int>(
-                  onChanged: (value) {
-                    context.read<InputColumnsCubit>().setInputColumns(value!);
-                  },
-                  value: inputColumnCount,
-                  items: [
-                    for (
-                      int i = possibleInputColumns.$1;
-                      i <= possibleInputColumns.$2;
-                      i++
-                    )
-                      DropdownMenuItem(value: i, child: Text('$i')),
-                  ],
+                trailing: Semantics(
+                  identifier: AppSemanticsIds.settingsInputColumnsDropdown,
+                  button: true,
+                  child: DropdownButton<int>(
+                    onChanged: (value) {
+                      context.read<InputColumnsCubit>().setInputColumns(value!);
+                    },
+                    value: inputColumnCount,
+                    items: [
+                      for (
+                        int i = possibleInputColumns.$1;
+                        i <= possibleInputColumns.$2;
+                        i++
+                      )
+                        DropdownMenuItem(
+                          value: i,
+                          child: Semantics(
+                            identifier:
+                                AppSemanticsIds.settingsInputColumnsOption(i),
+                            button: true,
+                            child: Text('$i'),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -82,23 +95,30 @@ class SettingsScreen extends StatelessWidget {
           // Calculate change
           BlocBuilder<CalculateChangeCubit, bool>(
             builder: (context, calculateChange) {
-              return SwitchListTile(
-                controlAffinity: ListTileControlAffinity.trailing,
-                value: calculateChange,
-                onChanged: (_) => context
-                    .read<CalculateChangeCubit>()
-                    .toggleCalculateChange(),
-                title: Text(context.translate.calculateChangeTitle),
-                subtitle: Text(context.translate.calculateChangeDesc),
+              return Semantics(
+                identifier: AppSemanticsIds.settingsCalculateChangeToggle,
+                child: SwitchListTile(
+                  controlAffinity: ListTileControlAffinity.trailing,
+                  value: calculateChange,
+                  onChanged: (_) => context
+                      .read<CalculateChangeCubit>()
+                      .toggleCalculateChange(),
+                  title: Text(context.translate.calculateChangeTitle),
+                  subtitle: Text(context.translate.calculateChangeDesc),
+                ),
               );
             },
           ),
           // Menu selection
-          ListTile(
-            title: Text(context.translate.productLists),
-            subtitle: Text(context.translate.editProductListsDesc),
-            trailing: const Icon(Icons.arrow_forward_ios_outlined),
-            onTap: () => _navigateToSettings(context),
+          Semantics(
+            identifier: AppSemanticsIds.settingsProductListsTile,
+            button: true,
+            child: ListTile(
+              title: Text(context.translate.productLists),
+              subtitle: Text(context.translate.editProductListsDesc),
+              trailing: const Icon(Icons.arrow_forward_ios_outlined),
+              onTap: () => _navigateToSettings(context),
+            ),
           ),
         ],
       ),

@@ -1,0 +1,48 @@
+appId: com.msonntag.ordermate
+name: Create German App Store screenshots
+---
+- launchApp:
+    clearState: true
+
+# Import base product list from iOS Files picker.
+- runFlow: subflows/ios_import_products_phone.yaml
+
+# Return to product selection.
+- tapOn:
+    id: 'app_bar.back_button'
+
+- runFlow: subflows/shared_seed_example_order.yaml
+
+# 01: Product selection.
+- takeScreenshot: 01_input
+
+# 02: Current order.
+- tapOn:
+    id: 'bottom_nav.order_tab'
+- assertVisible:
+    id: 'bottom_nav.order_tab'
+- takeScreenshot: 02_order
+
+# Enable change calculation.
+- tapOn:
+    id: 'app_bar.settings_button'
+- tapOn:
+    id: 'settings.calculate_change_toggle'
+- tapOn:
+    id: 'app_bar.back_button'
+
+# 03: Open change calculation sheet.
+- runFlow: subflows/shared_open_change_with_50.yaml
+- takeScreenshot: 03_change
+
+# Navigate to list editing.
+- runFlow: subflows/shared_navigate_to_list_edit.yaml
+
+# 04: List edit screen.
+- assertVisible:
+    id: 'edit_menu.products_header'
+- takeScreenshot: 04_edit
+
+# 05: Product edit screen for Cola.
+- runFlow: subflows/shared_open_cola_product_edit.yaml
+- takeScreenshot: 05_product_edit

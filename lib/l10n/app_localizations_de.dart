@@ -218,5 +218,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Öffnet ein Fenster zur Berechnung des Wechselgelds bei Abschließen einer Bestellung oder Teilen der Rechnung';
 
   @override
+  String get totalSum => 'Gesamtbetrag';
+
+  @override
+  String get given => 'Gegeben';
+
+  @override
   String get change => 'Rückgeld';
 }

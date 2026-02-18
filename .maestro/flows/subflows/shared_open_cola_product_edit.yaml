@@ -1,0 +1,10 @@
+appId: ${MAESTRO_SUBFLOW_APP_ID}
+name: Shared open cola product edit
+---
+# Open product edit sheet for Cola from list editing.
+- tapOn:
+    id: 'edit_menu.product_tile.cola_flasche_0_5l'
+- tapOn:
+    id: 'edit_menu.product_actions.edit_button'
+- assertVisible:
+    id: 'edit_product_sheet.title'

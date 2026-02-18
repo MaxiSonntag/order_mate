@@ -13,6 +13,7 @@ import 'package:ordermate/menu/settings/settings_screen.dart';
 import 'package:ordermate/order/order_cubit.dart';
 import 'package:ordermate/order/product_order_view.dart';
 import 'package:ordermate/utils/extensions.dart';
+import 'package:ordermate/utils/semantics_ids.dart';
 
 class CalculatorScreen extends StatelessWidget {
   final String orderName;
@@ -97,6 +98,8 @@ class CalculatorScreen extends StatelessWidget {
                         GlassIconButton(
                           icon: Icons.settings_outlined,
                           onTap: () => _navigateToSettings(context),
+                          semanticsIdentifier:
+                              AppSemanticsIds.appBarSettingsButton,
                         ),
                       ],
                     ),

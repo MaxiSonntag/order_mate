@@ -1,0 +1,16 @@
+appId: ${MAESTRO_SUBFLOW_APP_ID}
+name: Shared seed example order
+---
+# Build the desired example order.
+- tapOn:
+    id: 'product_input.tile.bier_mass'
+- tapOn:
+    id: 'product_input.tile.bier_mass'
+- tapOn:
+    id: 'product_input.tile.bier_mass'
+- tapOn:
+    id: 'product_input.tile.orangenlimo_flasche_0_5l'
+- tapOn:
+    id: 'product_input.tile.zitronenlimo_flasche_0_5l'
+- tapOn:
+    id: 'product_input.tile.cola_flasche_0_5l'

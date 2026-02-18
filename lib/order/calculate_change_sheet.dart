@@ -3,6 +3,7 @@ import 'package:ordermate/components/action_button.dart';
 import 'package:ordermate/components/numpad.dart';
 import 'package:ordermate/utils/constants.dart';
 import 'package:ordermate/utils/extensions.dart';
+import 'package:ordermate/utils/semantics_ids.dart';
 
 class CalculateChangeSheet extends StatelessWidget {
   CalculateChangeSheet({required this.orderName, required this.sum, super.key});
@@ -31,9 +32,12 @@ class CalculateChangeSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          'Gesamtbetrag'.toUpperCase(),
-          style: TextStyle(color: Colors.black.withAlpha(175), fontSize: 12),
+        Semantics(
+          identifier: AppSemanticsIds.changeSheetTotalTitle,
+          child: Text(
+            context.translate.totalSum.toUpperCase(),
+            style: TextStyle(color: Colors.black.withAlpha(175), fontSize: 12),
+          ),
         ),
         Text(
           '${sum.toStringAsFixed(2)}€',
@@ -54,7 +58,7 @@ class CalculateChangeSheet extends StatelessWidget {
                 crossAxisAlignment: .start,
                 children: [
                   Text(
-                    'Gegeben',
+                    context.translate.given,
                     style: TextStyle(color: Colors.black.withAlpha(175)),
                   ),
                   SingleChildScrollView(
@@ -87,8 +91,7 @@ class CalculateChangeSheet extends StatelessWidget {
                 crossAxisAlignment: .end,
                 children: [
                   Text(
-                    // TODO(msonntag): Translation
-                    'Rückgeld',
+                    context.translate.change,
                     style: TextStyle(color: Colors.black.withAlpha(175)),
                   ),
                   SingleChildScrollView(
@@ -134,6 +137,7 @@ class CalculateChangeSheet extends StatelessWidget {
         _QuickOptionsRow(sum: sum, onSelected: setGivenValue),
         SizedBox(height: AppConstants.spacingXXL),
         ActionButton(
+          semanticsIdentifier: AppSemanticsIds.changeSheetCancelButton,
           color: AppConstants.defaultAction,
           height: AppConstants.buttonHeightStandard,
           useSafeArea: false,
@@ -231,6 +235,9 @@ class _QuickOptionsRow extends StatelessWidget {
         children: [
           for (final amount in sum.likelyCashPayments)
             ActionButton(
+              semanticsIdentifier: AppSemanticsIds.changeSheetQuickOption(
+                amount,
+              ),
               useSafeArea: false,
               margin: EdgeInsets.symmetric(horizontal: AppConstants.spacingXS),
               padding: EdgeInsets.symmetric(horizontal: AppConstants.spacingM),

@@ -9,6 +9,7 @@ import 'package:ordermate/menu/menus_cubit/menus_cubit.dart';
 import 'package:ordermate/menu/models/menu.dart';
 import 'package:ordermate/menu/widgets/menu_list_tile.dart';
 import 'package:ordermate/utils/extensions.dart';
+import 'package:ordermate/utils/semantics_ids.dart';
 
 class MenuSelectionScreen extends StatelessWidget {
   const MenuSelectionScreen({super.key});
@@ -127,6 +128,8 @@ class MenusList extends StatelessWidget {
               ),
               const SizedBox(height: 16.0),
               ActionButton(
+                semanticsIdentifier:
+                    AppSemanticsIds.menuSelectionAddOrImportButton,
                 color: Theme.of(context).colorScheme.primary,
                 height: 50,
                 useSafeArea: false,
@@ -191,10 +194,14 @@ class AddMenuSheet extends StatelessWidget {
           title: Text(context.translate.addManually),
           onTap: () => _navigateToEditScreen(context),
         ),
-        ListTile(
-          leading: const Icon(Icons.file_download_outlined),
-          title: Text(context.translate.import),
-          onTap: () => _handleImport(context),
+        Semantics(
+          identifier: AppSemanticsIds.menuSelectionImportOption,
+          button: true,
+          child: ListTile(
+            leading: const Icon(Icons.file_download_outlined),
+            title: Text(context.translate.import),
+            onTap: () => _handleImport(context),
+          ),
         ),
       ],
     );
@@ -236,22 +243,29 @@ class AddMenuSheet extends StatelessWidget {
         const Icon(Icons.check_circle_outline, color: Colors.green, size: 46),
         const SizedBox(height: 16.0),
         Text(menu.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text(context.translate.productCount(menu.products.length)),
+        Semantics(
+          identifier: AppSemanticsIds.menuSelectionImportedProductCount,
+          child: Text(context.translate.productCount(menu.products.length)),
+        ),
         const SizedBox(height: 16.0),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             children: [
               Expanded(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final menusCubit = context.read<MenusCubit>();
-                    await menusCubit.saveMenu(menu);
-                    menusCubit.loadMenus();
+                child: Semantics(
+                  identifier: AppSemanticsIds.menuSelectionImportedSaveButton,
+                  button: true,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final menusCubit = context.read<MenusCubit>();
+                      await menusCubit.saveMenu(menu);
+                      menusCubit.loadMenus();
 
-                    navigator.pop();
-                  },
-                  child: Text(context.translate.save),
+                      navigator.pop();
+                    },
+                    child: Text(context.translate.save),
+                  ),
                 ),
               ),
             ],
