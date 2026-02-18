@@ -51,9 +51,7 @@ class _OrderListState extends State<OrderList> {
     }
 
     final orderedProducts = widget.order
-      ..sort(
-        (o1, o2) => o1.product.sortingKey - o2.product.sortingKey,
-      );
+      ..sort((o1, o2) => o1.product.sortingKey - o2.product.sortingKey);
     return FadingEdgeScrollView.fromScrollView(
       gradientFractionOnStart: widget.useTopGradient ? 0.1 : 0,
       gradientFractionOnEnd: widget.useBottomGradient ? 0.1 : 0,

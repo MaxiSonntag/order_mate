@@ -1,0 +1,37 @@
+appId: com.msonntag.ordermate
+name: iOS phone import products
+---
+# Import base product list from iOS Files picker (iPhone flow).
+- assertVisible:
+    id: 'product_input.go_to_settings'
+- tapOn:
+    id: 'product_input.go_to_settings'
+- assertVisible:
+    id: 'menu_selection.add_or_import'
+- tapOn:
+    id: 'menu_selection.add_or_import'
+- assertVisible:
+    id: 'menu_selection.import_option'
+- tapOn:
+    id: 'menu_selection.import_option'
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      notVisible:
+        id: 'de_appstore_prod.json, json'
+    commands:
+      - repeat:
+          times: 3
+          commands:
+            - tapOn:
+                id: 'folder.fill'
+      - tapOn:
+          id: 'iphone'
+- assertVisible:
+    id: 'de_appstore_prod.json, json'
+- tapOn:
+    id: 'de_appstore_prod.json, json'
+- assertVisible:
+    id: 'menu_selection.imported_product_count'
+- tapOn:
+    id: 'menu_selection.imported_save_button'

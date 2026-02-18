@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ordermate/utils/semantics_ids.dart';
 import 'package:ordermate/utils/constants.dart';
 
 class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -34,6 +35,7 @@ class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
             GlassIconButton(
               icon: Icons.arrow_back_ios_new_rounded,
               onTap: () => Navigator.of(context).maybePop(),
+              semanticsIdentifier: AppSemanticsIds.appBarBackButton,
             ),
             const SizedBox(width: AppConstants.spacingM),
           ],
@@ -72,8 +74,14 @@ class ModernAppBar extends StatelessWidget implements PreferredSizeWidget {
 class GlassIconButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback? onTap;
+  final String? semanticsIdentifier;
 
-  const GlassIconButton({super.key, required this.icon, this.onTap});
+  const GlassIconButton({
+    super.key,
+    required this.icon,
+    this.onTap,
+    this.semanticsIdentifier,
+  });
 
   @override
   State<GlassIconButton> createState() => _GlassIconButtonState();
@@ -86,7 +94,7 @@ class _GlassIconButtonState extends State<GlassIconButton> {
   Widget build(BuildContext context) {
     final isEnabled = widget.onTap != null;
 
-    return GestureDetector(
+    final button = GestureDetector(
       onTapDown: isEnabled ? (_) => setState(() => _isPressed = true) : null,
       onTapUp: isEnabled ? (_) => setState(() => _isPressed = false) : null,
       onTapCancel: isEnabled ? () => setState(() => _isPressed = false) : null,
@@ -101,13 +109,15 @@ class _GlassIconButtonState extends State<GlassIconButton> {
             width: AppConstants.glassButtonSize,
             height: AppConstants.glassButtonSize,
             decoration: BoxDecoration(
-              color: ColorScheme.of(context)
-                  .primary
-                  .withValues(alpha: AppConstants.opacitySubtle),
+              color: ColorScheme.of(
+                context,
+              ).primary.withValues(alpha: AppConstants.opacitySubtle),
               borderRadius: BorderRadius.circular(AppConstants.radiusL),
               boxShadow: [
                 BoxShadow(
-                  color: ColorScheme.of(context).primary.withValues(alpha: 0.06),
+                  color: ColorScheme.of(
+                    context,
+                  ).primary.withValues(alpha: 0.06),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -121,6 +131,16 @@ class _GlassIconButtonState extends State<GlassIconButton> {
           ),
         ),
       ),
+    );
+
+    if (widget.semanticsIdentifier == null) {
+      return button;
+    }
+
+    return Semantics(
+      identifier: widget.semanticsIdentifier,
+      button: true,
+      child: button,
     );
   }
 }

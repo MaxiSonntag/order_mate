@@ -1,0 +1,45 @@
+appId: com.msonntag.ordermate
+name: Create German App Store screenshots (iPad 13-inch)
+---
+- launchApp:
+    clearState: true
+
+# Import base product list from iOS Files picker.
+- runFlow: subflows/ios_import_products_tablet.yaml
+
+# Return to the calculator root.
+- tapOn:
+    id: 'app_bar.back_button'
+
+# Prepare iPad layout and calculation mode.
+- tapOn:
+    id: 'app_bar.settings_button'
+- tapOn:
+    id: 'settings.input_columns_option.2'
+- tapOn:
+    id: 'settings.input_columns_option.3'
+- tapOn:
+    id: 'settings.calculate_change_toggle'
+- tapOn:
+    id: 'app_bar.back_button'
+
+- runFlow: subflows/shared_seed_example_order.yaml
+
+# 01: iPad combined product input + current order view.
+- takeScreenshot: 01_input_order
+
+# 03: Open change calculation sheet.
+- runFlow: subflows/shared_open_change_with_50.yaml
+- takeScreenshot: 02_change
+
+# Navigate to list editing.
+- runFlow: subflows/shared_navigate_to_list_edit.yaml
+
+# 04: List edit screen.
+- assertVisible:
+    id: 'edit_menu.products_header'
+- takeScreenshot: 03_edit
+
+# 05: Product edit screen for Cola.
+- runFlow: subflows/shared_open_cola_product_edit.yaml
+- takeScreenshot: 04_product_edit

@@ -61,7 +61,10 @@ class _DottedDividerPainter extends CustomPainter {
 
     while (x < size.width) {
       canvas.drawLine(
-          Offset(x, y), Offset((x + dotWidth).clamp(0, size.width), y), paint);
+        Offset(x, y),
+        Offset((x + dotWidth).clamp(0, size.width), y),
+        paint,
+      );
       x += dotWidth + gap;
     }
   }

@@ -2,8 +2,10 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ordermate/components/action_button.dart';
+import 'package:ordermate/menu/settings/cubits/calculate_change_cubit.dart';
 import 'package:ordermate/menu/settings/cubits/multiple_orders_cubit.dart';
 import 'package:ordermate/menu/widgets/text_input_bottom_sheet.dart';
+import 'package:ordermate/order/calculate_change_sheet.dart';
 import 'package:ordermate/order/order_cubit.dart';
 import 'package:ordermate/order/order_list.dart';
 import 'package:ordermate/order/product_order.dart';
@@ -11,6 +13,7 @@ import 'package:ordermate/order/subtotal_view.dart';
 import 'package:ordermate/order_overview/customer_order.dart';
 import 'package:ordermate/utils/constants.dart';
 import 'package:ordermate/utils/extensions.dart';
+import 'package:ordermate/utils/semantics_ids.dart';
 
 class ProductOrderView extends StatelessWidget {
   final String orderName;
@@ -47,8 +50,14 @@ class ProductOrderView extends StatelessWidget {
     } else if (multipleOrdersAllowed &&
         orderName != OrderCubit.orderNamePlaceholder) {
       if (orders == null) {
-        orderCubit.removeOrder(orderName);
-        navigator.pop();
+        final orderFinished = await _calcChangeIfNecessary(context);
+        if (!context.mounted) {
+          return;
+        }
+        if (orderFinished) {
+          orderCubit.removeOrder(orderName);
+          navigator.pop();
+        }
       } else {
         for (final order in orders) {
           for (int i = 1; i <= order.amount; i++) {
@@ -63,7 +72,10 @@ class ProductOrderView extends StatelessWidget {
       }
     } else {
       if (orders == null) {
-        orderCubit.clearOrders();
+        var orderFinished = await _calcChangeIfNecessary(context);
+        if (orderFinished) {
+          orderCubit.clearOrders();
+        }
       } else {
         for (final order in orders) {
           for (int i = 1; i <= order.amount; i++) {
@@ -72,6 +84,29 @@ class ProductOrderView extends StatelessWidget {
         }
       }
     }
+  }
+
+  Future<bool> _calcChangeIfNecessary(BuildContext context) async {
+    var orderFinished = true;
+
+    if (context.read<CalculateChangeCubit>().state) {
+      final order = context
+          .read<OrderCubit>()
+          .state
+          .firstWhereOrNull((element) => element.name == orderName)
+          ?.order;
+      if (order != null) {
+        orderFinished =
+            (await CalculateChangeSheet.show(
+              context,
+              orderName: orderName,
+              sum: order.sum,
+            )) ??
+            false;
+      }
+    }
+
+    return orderFinished;
   }
 
   @override
@@ -337,6 +372,7 @@ class SumButton extends StatelessWidget {
         );
 
         return ActionButton(
+          semanticsIdentifier: AppSemanticsIds.orderSumButton,
           color: color,
           height: height,
           useSafeArea: useSafeArea,

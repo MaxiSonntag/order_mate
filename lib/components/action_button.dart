@@ -8,6 +8,8 @@ class ActionButton extends StatefulWidget {
   final double? height;
   final bool useSafeArea;
   final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry? padding;
+  final String? semanticsIdentifier;
 
   const ActionButton({
     super.key,
@@ -17,6 +19,8 @@ class ActionButton extends StatefulWidget {
     this.height,
     this.useSafeArea = true,
     this.margin,
+    this.padding,
+    this.semanticsIdentifier,
   });
 
   @override
@@ -28,8 +32,9 @@ class _ActionButtonState extends State<ActionButton> {
 
   @override
   Widget build(BuildContext context) {
-    final bottomPadding =
-        widget.useSafeArea ? MediaQuery.of(context).padding.bottom : 0.0;
+    final bottomPadding = widget.useSafeArea
+        ? MediaQuery.of(context).padding.bottom
+        : 0.0;
 
     final defaultMargin = EdgeInsets.only(
       left: AppConstants.spacingL,
@@ -37,7 +42,25 @@ class _ActionButtonState extends State<ActionButton> {
       bottom: bottomPadding + AppConstants.spacingS,
     );
 
-    return GestureDetector(
+    final buttonSurface = Container(
+      height: widget.height ?? AppConstants.buttonHeightDefault,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppConstants.radiusXXL),
+        color: widget.color.withValues(alpha: AppConstants.opacitySubtle),
+        border: Border.all(
+          color: widget.color.withValues(alpha: AppConstants.opacityMedium),
+          width: AppConstants.borderWidth,
+        ),
+      ),
+      child: Padding(
+        padding:
+            widget.padding ??
+            EdgeInsets.symmetric(horizontal: AppConstants.spacingXL),
+        child: widget.child,
+      ),
+    );
+
+    Widget button = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) {
@@ -48,25 +71,20 @@ class _ActionButtonState extends State<ActionButton> {
       child: AnimatedScale(
         scale: _isPressed ? 0.98 : 1.0,
         duration: AppConstants.animationFast,
-        child: Container(
-          margin: widget.margin ?? defaultMargin,
-          height: widget.height ?? AppConstants.buttonHeightDefault,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppConstants.radiusXXL),
-            color: widget.color.withValues(alpha: AppConstants.opacitySubtle),
-            border: Border.all(
-              color: widget.color.withValues(alpha: AppConstants.opacityMedium),
-              width: AppConstants.borderWidth,
-            ),
-          ),
-          child: Padding(
-            padding:
-                EdgeInsets.symmetric(horizontal: AppConstants.spacingXL),
-            child: widget.child,
-          ),
-        ),
+        child: buttonSurface,
       ),
     );
+
+    if (widget.semanticsIdentifier != null) {
+      button = Semantics(
+        identifier: widget.semanticsIdentifier,
+        button: true,
+        onTap: widget.onPressed,
+        child: button,
+      );
+    }
+
+    return Padding(padding: widget.margin ?? defaultMargin, child: button);
   }
 }
 
@@ -89,14 +107,11 @@ class ActionButtonContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment:
-          centered ? MainAxisAlignment.center : MainAxisAlignment.start,
+      mainAxisAlignment: centered
+          ? MainAxisAlignment.center
+          : MainAxisAlignment.start,
       children: [
-        Icon(
-          icon,
-          color: color,
-          size: AppConstants.iconSizeL,
-        ),
+        Icon(icon, color: color, size: AppConstants.iconSizeL),
         const SizedBox(width: AppConstants.spacingM),
         Text(
           label,

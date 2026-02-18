@@ -17,6 +17,7 @@ abstract final class AppConstants {
   static const Color emeraldAction = Color(0xFF0E9A4A);
   static const Color amberAction = Color(0xFFD1870A);
   static const Color errorAction = Color(0xFFDC2626);
+  static const Color defaultAction = Color(0xFFA1A1A1);
 
   // ============================================
   // BORDER RADII

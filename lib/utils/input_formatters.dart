@@ -8,9 +8,9 @@ class SignedDecimalFormatter extends TextInputFormatter {
 
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final raw = newValue.text;
 
     // Allow transient edit states (important for sign/decimal entry flows).

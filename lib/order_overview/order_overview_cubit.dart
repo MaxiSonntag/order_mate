@@ -5,8 +5,8 @@ class OrderOverviewCubit extends HydratedCubit<List<CustomerOrder>> {
   bool _isMultpleOrdersAllowed;
 
   OrderOverviewCubit(bool isMultpleOrdersAllowed)
-      : _isMultpleOrdersAllowed = isMultpleOrdersAllowed,
-        super(const []);
+    : _isMultpleOrdersAllowed = isMultpleOrdersAllowed,
+      super(const []);
 
   void setMultipleOrdersAllowed(bool allowed) {
     _isMultpleOrdersAllowed = allowed;
@@ -40,6 +40,6 @@ class OrderOverviewCubit extends HydratedCubit<List<CustomerOrder>> {
 
   @override
   Map<String, dynamic>? toJson(List<CustomerOrder> state) => {
-        for (var customerOrder in state) customerOrder.name: customerOrder.order
-      };
+    for (var customerOrder in state) customerOrder.name: customerOrder.order,
+  };
 }

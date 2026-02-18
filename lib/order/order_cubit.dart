@@ -17,7 +17,8 @@ class OrderCubit extends HydratedCubit<List<CustomerOrder>> {
   void addProduct(String? orderName, Product product) {
     var workingList = [...state];
     int customerOrderIdx = workingList.indexWhere(
-        (element) => element.name == (orderName ?? orderNamePlaceholder));
+      (element) => element.name == (orderName ?? orderNamePlaceholder),
+    );
     if (customerOrderIdx == -1) {
       final emptyOrder = CustomerOrder.empty(orderName ?? orderNamePlaceholder);
       workingList.add(emptyOrder);
@@ -31,10 +32,9 @@ class OrderCubit extends HydratedCubit<List<CustomerOrder>> {
     );
 
     if (productInOrderIdx == -1) {
-      customerOrder = customerOrder.copyWith(order: [
-        ...customerOrder.order,
-        ProductOrder(product, 1),
-      ]);
+      customerOrder = customerOrder.copyWith(
+        order: [...customerOrder.order, ProductOrder(product, 1)],
+      );
     } else {
       var productOrder = customerOrder.order[productInOrderIdx];
       productOrder = productOrder.copyWith(amount: productOrder.amount + 1);
@@ -49,7 +49,8 @@ class OrderCubit extends HydratedCubit<List<CustomerOrder>> {
 
   void removeProduct(String? orderName, Product product) {
     final customerOrderIdx = state.indexWhere(
-        (element) => element.name == (orderName ?? orderNamePlaceholder));
+      (element) => element.name == (orderName ?? orderNamePlaceholder),
+    );
     var customerOrder = state[customerOrderIdx];
 
     final productInOrderIdx = customerOrder.order.indexWhere(
@@ -71,15 +72,18 @@ class OrderCubit extends HydratedCubit<List<CustomerOrder>> {
   }
 
   void setOrderName(String name) {
-    final customerOrderIdx =
-        state.indexWhere((element) => element.name == orderNamePlaceholder);
+    final customerOrderIdx = state.indexWhere(
+      (element) => element.name == orderNamePlaceholder,
+    );
     final updated = state[customerOrderIdx].copyWith(name: name);
     state[customerOrderIdx] = updated;
     emit([...state]);
   }
 
   void removeUnfinishedOrder() {
-    final unfinishedOrderIdx = state.indexWhere((element) => element.name == orderNamePlaceholder);
+    final unfinishedOrderIdx = state.indexWhere(
+      (element) => element.name == orderNamePlaceholder,
+    );
     if (unfinishedOrderIdx != -1) {
       emit([...state]..removeAt(unfinishedOrderIdx));
     }
@@ -106,17 +110,13 @@ class OrderCubit extends HydratedCubit<List<CustomerOrder>> {
 
   @override
   List<CustomerOrder>? fromJson(Map<String, dynamic> json) {
-    return List<Map<String, dynamic>>.from(json[storageKey])
-        .map((customerOrder) => CustomerOrder.fromJson(customerOrder))
-        .toList();
+    return List<Map<String, dynamic>>.from(
+      json[storageKey],
+    ).map((customerOrder) => CustomerOrder.fromJson(customerOrder)).toList();
   }
 
   @override
   Map<String, dynamic>? toJson(List<CustomerOrder> state) => {
-        storageKey: state
-            .map(
-              (customerOrder) => customerOrder.toJson(),
-            )
-            .toList()
-      };
+    storageKey: state.map((customerOrder) => customerOrder.toJson()).toList(),
+  };
 }

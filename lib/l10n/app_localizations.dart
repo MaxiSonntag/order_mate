@@ -463,6 +463,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This creates \'sections\' in the product selection'**
   String get insertDividerBelowDesc;
+
+  /// No description provided for @calculateChangeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate change'**
+  String get calculateChangeTitle;
+
+  /// No description provided for @calculateChangeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens a window for calculating change when completing an order or splitting the bill'**
+  String get calculateChangeDesc;
+
+  /// No description provided for @totalSum.
+  ///
+  /// In en, this message translates to:
+  /// **'Total sum'**
+  String get totalSum;
+
+  /// No description provided for @given.
+  ///
+  /// In en, this message translates to:
+  /// **'Given'**
+  String get given;
+
+  /// No description provided for @change.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get change;
 }
 
 class _AppLocalizationsDelegate

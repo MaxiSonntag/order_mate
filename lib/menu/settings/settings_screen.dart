@@ -2,27 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ordermate/components/modern_app_bar.dart';
 import 'package:ordermate/menu/menu_selection/menu_selection_screen.dart';
+import 'package:ordermate/menu/settings/cubits/calculate_change_cubit.dart';
 import 'package:ordermate/menu/settings/cubits/input_columns_cubit.dart';
 import 'package:ordermate/menu/settings/cubits/multiple_orders_cubit.dart';
 import 'package:ordermate/menu/settings/settings_errors.dart';
 import 'package:ordermate/utils/extensions.dart';
+import 'package:ordermate/utils/semantics_ids.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   void _navigateToSettings(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const MenuSelectionScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const MenuSelectionScreen()),
     );
   }
 
   void _showMultipleOrdersError(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.translate.multipleOrdersError),
-      ),
+      SnackBar(content: Text(context.translate.multipleOrdersError)),
     );
   }
 
@@ -65,30 +63,62 @@ class SettingsScreen extends StatelessWidget {
               return ListTile(
                 title: Text(context.translate.inputColumns),
                 subtitle: Text(context.translate.inputColumnsDesc),
-                trailing: DropdownButton<int>(
-                  onChanged: (value) {
-                    context.read<InputColumnsCubit>().setInputColumns(value!);
-                  },
-                  value: inputColumnCount,
-                  items: [
-                    for (int i = possibleInputColumns.$1;
+                trailing: Semantics(
+                  identifier: AppSemanticsIds.settingsInputColumnsDropdown,
+                  button: true,
+                  child: DropdownButton<int>(
+                    onChanged: (value) {
+                      context.read<InputColumnsCubit>().setInputColumns(value!);
+                    },
+                    value: inputColumnCount,
+                    items: [
+                      for (
+                        int i = possibleInputColumns.$1;
                         i <= possibleInputColumns.$2;
-                        i++)
-                      DropdownMenuItem(
-                        value: i,
-                        child: Text('$i'),
-                      ),
-                  ],
+                        i++
+                      )
+                        DropdownMenuItem(
+                          value: i,
+                          child: Semantics(
+                            identifier:
+                                AppSemanticsIds.settingsInputColumnsOption(i),
+                            button: true,
+                            child: Text('$i'),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+          // Calculate change
+          BlocBuilder<CalculateChangeCubit, bool>(
+            builder: (context, calculateChange) {
+              return Semantics(
+                identifier: AppSemanticsIds.settingsCalculateChangeToggle,
+                child: SwitchListTile(
+                  controlAffinity: ListTileControlAffinity.trailing,
+                  value: calculateChange,
+                  onChanged: (_) => context
+                      .read<CalculateChangeCubit>()
+                      .toggleCalculateChange(),
+                  title: Text(context.translate.calculateChangeTitle),
+                  subtitle: Text(context.translate.calculateChangeDesc),
                 ),
               );
             },
           ),
           // Menu selection
-          ListTile(
-            title: Text(context.translate.productLists),
-            subtitle: Text(context.translate.editProductListsDesc),
-            trailing: const Icon(Icons.arrow_forward_ios_outlined),
-            onTap: () => _navigateToSettings(context),
+          Semantics(
+            identifier: AppSemanticsIds.settingsProductListsTile,
+            button: true,
+            child: ListTile(
+              title: Text(context.translate.productLists),
+              subtitle: Text(context.translate.editProductListsDesc),
+              trailing: const Icon(Icons.arrow_forward_ios_outlined),
+              onTap: () => _navigateToSettings(context),
+            ),
           ),
         ],
       ),
@@ -97,7 +127,6 @@ class SettingsScreen extends StatelessWidget {
 
   (int, int) _getPossibleInputColumns(BuildContext context) {
     final shortestSide = MediaQuery.of(context).size.shortestSide;
-    print(shortestSide);
     if (shortestSide <= 450) {
       // 14 Pro Max = 430
       return (2, 2);

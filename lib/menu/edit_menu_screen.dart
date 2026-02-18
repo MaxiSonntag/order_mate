@@ -13,6 +13,7 @@ import 'package:ordermate/menu/models/product.dart';
 import 'package:ordermate/components/dotted_divider.dart';
 import 'package:ordermate/utils/extensions.dart';
 import 'package:ordermate/utils/input_formatters.dart';
+import 'package:ordermate/utils/semantics_ids.dart';
 import 'package:ordermate/utils/validators.dart';
 import 'package:uuid/uuid.dart';
 
@@ -71,9 +72,7 @@ class EditMenuScreen extends StatelessWidget {
             autovalidateMode: autovalidate,
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 12.0,
-                ),
+                padding: const EdgeInsets.symmetric(vertical: 12.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,9 +95,12 @@ class EditMenuScreen extends StatelessWidget {
                     const Divider(),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        context.translate.products,
-                        style: Theme.of(context).textTheme.titleLarge,
+                      child: Semantics(
+                        identifier: AppSemanticsIds.editMenuProductsHeader,
+                        child: Text(
+                          context.translate.products,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8.0),
@@ -170,8 +172,9 @@ class ProductsFormField extends FormField<List<Product>> {
                    final updatedProducts = reordered
                        .asMap()
                        .entries
-                       .map((entry) =>
-                           entry.value.copyWith(sortingKey: entry.key))
+                       .map(
+                         (entry) => entry.value.copyWith(sortingKey: entry.key),
+                       )
                        .toList();
 
                    state.didChange(updatedProducts);
@@ -185,39 +188,53 @@ class ProductsFormField extends FormField<List<Product>> {
                      child: Column(
                        mainAxisSize: MainAxisSize.min,
                        children: [
-                         ListTile(
-                           contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                           leading: Container(
-                             width: 25,
-                             height: 25,
-                             decoration: BoxDecoration(
-                               color: product.color,
-                               borderRadius: BorderRadius.circular(4),
+                         Semantics(
+                           identifier: AppSemanticsIds.editMenuProductTile(
+                             productName: product.name,
+                             unit: product.unit,
+                           ),
+                           button: true,
+                           child: ListTile(
+                             contentPadding: const EdgeInsets.symmetric(
+                               horizontal: 16,
                              ),
-                           ),
-                           title: Text(product.name),
-                           subtitle: Text(product.unit),
-                           trailing: Row(
-                             mainAxisAlignment: MainAxisAlignment.end,
-                             mainAxisSize: MainAxisSize.min,
-                             children: [
-                               Text(
-                                 '${product.price.toStringAsFixed(2)}€',
-                                 style:
-                                     Theme.of(state.context).textTheme.bodyMedium,
+                             leading: Container(
+                               width: 25,
+                               height: 25,
+                               decoration: BoxDecoration(
+                                 color: product.color,
+                                 borderRadius: BorderRadius.circular(4),
                                ),
-                               SizedBox(width: 16),
-                               Icon(Icons.reorder_outlined, color: Colors.grey),
-                             ],
-                           ),
-                           onTap: () => _openActionsSheet(
-                             state,
-                             product: product,
-                             onDelete: () {
-                               state.didChange(
-                                   [...state.value!]..remove(product));
-                               state.save();
-                             },
+                             ),
+                             title: Text(product.name),
+                             subtitle: Text(product.unit),
+                             trailing: Row(
+                               mainAxisAlignment: MainAxisAlignment.end,
+                               mainAxisSize: MainAxisSize.min,
+                               children: [
+                                 Text(
+                                   '${product.price.toStringAsFixed(2)}€',
+                                   style: Theme.of(
+                                     state.context,
+                                   ).textTheme.bodyMedium,
+                                 ),
+                                 SizedBox(width: 16),
+                                 Icon(
+                                   Icons.reorder_outlined,
+                                   color: Colors.grey,
+                                 ),
+                               ],
+                             ),
+                             onTap: () => _openActionsSheet(
+                               state,
+                               product: product,
+                               onDelete: () {
+                                 state.didChange(
+                                   [...state.value!]..remove(product),
+                                 );
+                                 state.save();
+                               },
+                             ),
                            ),
                          ),
                          if (product.isSectionEnd)
@@ -364,10 +381,14 @@ class ActionsSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ListTile(
-            leading: const Icon(Icons.edit_outlined),
-            title: Text(context.translate.edit),
-            onTap: () => Navigator.of(context).pop(MenuProductAction.edit),
+          Semantics(
+            identifier: AppSemanticsIds.editMenuProductActionsEditButton,
+            button: true,
+            child: ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: Text(context.translate.edit),
+              onTap: () => Navigator.of(context).pop(MenuProductAction.edit),
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.delete_outline),
@@ -440,11 +461,14 @@ class _EditProductSheetState extends State<EditProductSheet> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      isEdit
-                          ? context.translate.editProduct
-                          : context.translate.addProduct,
-                      style: Theme.of(context).textTheme.titleLarge,
+                    Semantics(
+                      identifier: AppSemanticsIds.editProductSheetTitle,
+                      child: Text(
+                        isEdit
+                            ? context.translate.editProduct
+                            : context.translate.addProduct,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                     ),
                     const SizedBox(height: 12.0),
                     TextFormField(
@@ -545,6 +569,8 @@ class _EditProductSheetState extends State<EditProductSheet> {
                     ),
                     const SizedBox(height: 12.0),
                     ActionButton(
+                      semanticsIdentifier:
+                          AppSemanticsIds.editProductSheetSaveButton,
                       color: Theme.of(context).colorScheme.primary,
                       height: 50,
                       useSafeArea: false,

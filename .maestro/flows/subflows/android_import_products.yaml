@@ -1,0 +1,33 @@
+appId: de.msonntag.ordermate
+name: Android import products
+---
+# Import base product list from Android file picker.
+- assertVisible:
+    id: 'product_input.go_to_settings'
+- tapOn:
+    id: 'product_input.go_to_settings'
+- assertVisible:
+    id: 'menu_selection.add_or_import'
+- tapOn:
+    id: 'menu_selection.add_or_import'
+- assertVisible:
+    id: 'menu_selection.import_option'
+- tapOn:
+    id: 'menu_selection.import_option'
+- waitForAnimationToEnd:
+    timeout: 15000
+- retry:
+    maxRetries: 12
+    commands:
+      - runFlow:
+          when:
+            notVisible: 'de_appstore_prod.json'
+          commands:
+            - tapOn: 'Root-Verzeichnis anzeigen'
+            - tapOn: 'Downloads'
+      - tapOn: 'de_appstore_prod.json'
+      - waitForAnimationToEnd
+      - assertVisible:
+          id: 'menu_selection.imported_product_count'
+- tapOn:
+    id: 'menu_selection.imported_save_button'

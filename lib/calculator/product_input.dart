@@ -9,6 +9,7 @@ import 'package:ordermate/components/dotted_divider.dart';
 import 'package:ordermate/order/order_cubit.dart';
 import 'package:ordermate/utils/constants.dart';
 import 'package:ordermate/utils/extensions.dart';
+import 'package:ordermate/utils/semantics_ids.dart';
 
 class ProductInput extends StatelessWidget {
   final String orderName;
@@ -60,13 +61,17 @@ class ProductInput extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: AppConstants.spacingXXL),
-                  ElevatedButton.icon(
-                    onPressed: () => _navigateToMenuSelection(context),
-                    icon: const Icon(Icons.settings_outlined),
-                    label: Text(context.translate.goToSettings),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Colors.white,
+                  Semantics(
+                    identifier: AppSemanticsIds.productInputGoToSettingsButton,
+                    button: true,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _navigateToMenuSelection(context),
+                      icon: const Icon(Icons.settings_outlined),
+                      label: Text(context.translate.goToSettings),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.white,
+                      ),
                     ),
                   ),
                 ],
@@ -157,10 +162,7 @@ class _ProductSelectionItemState extends State<ProductSelectionItem> {
     }
     if (mounted) {
       setState(() => _isPressed = false);
-      context.read<OrderCubit>().addProduct(
-            widget.orderName,
-            widget.product,
-          );
+      context.read<OrderCubit>().addProduct(widget.orderName, widget.product);
     }
   }
 
@@ -175,51 +177,61 @@ class _ProductSelectionItemState extends State<ProductSelectionItem> {
 
     return Padding(
       padding: EdgeInsets.all(0.2),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTapDown: _handleTapDown,
-        onTapUp: _handleTapUp,
-        onTapCancel: _handleTapCancel,
-        child: AnimatedScale(
-          scale: _isPressed ? 0.95 : 1.0,
-          duration: AppConstants.animationFast,
-          child: Container(
-            decoration: BoxDecoration(
-              // borderRadius: BorderRadius.circular(AppConstants.radiusXL),
-              color: color.withValues(alpha: AppConstants.opacityStrong),
-              border: Border.all(color: color, width: AppConstants.borderWidth),
-            ),
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.all(AppConstants.spacingS),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        product.name,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: color
-                              .withValues(alpha: AppConstants.opacityStrong)
-                              .foregroundTextColor,
-                          letterSpacing: 0.2,
+      child: Semantics(
+        identifier: AppSemanticsIds.productInputTile(
+          productName: product.name,
+          unit: product.unit,
+        ),
+        button: true,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: _handleTapDown,
+          onTapUp: _handleTapUp,
+          onTapCancel: _handleTapCancel,
+          child: AnimatedScale(
+            scale: _isPressed ? 0.95 : 1.0,
+            duration: AppConstants.animationFast,
+            child: Container(
+              decoration: BoxDecoration(
+                // borderRadius: BorderRadius.circular(AppConstants.radiusXL),
+                color: color.withValues(alpha: AppConstants.opacityStrong),
+                border: Border.all(
+                  color: color,
+                  width: AppConstants.borderWidth,
+                ),
+              ),
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.all(AppConstants.spacingS),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          product.name,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            color: color
+                                .withValues(alpha: AppConstants.opacityStrong)
+                                .foregroundTextColor,
+                            letterSpacing: 0.2,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: AppConstants.spacingXS),
-                      Text(
-                        product.unit,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: color
-                              .withValues(alpha: AppConstants.opacityStrong)
-                              .foregroundTextColor,
+                        SizedBox(height: AppConstants.spacingXS),
+                        Text(
+                          product.unit,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: color
+                                .withValues(alpha: AppConstants.opacityStrong)
+                                .foregroundTextColor,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

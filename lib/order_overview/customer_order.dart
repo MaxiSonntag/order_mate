@@ -8,10 +8,7 @@ class CustomerOrder with CustomerOrderMappable {
   final String name;
   final List<ProductOrder> order;
 
-  const CustomerOrder({
-    required this.name,
-    required this.order,
-  });
+  const CustomerOrder({required this.name, required this.order});
 
   factory CustomerOrder.empty(String name) {
     return CustomerOrder(name: name, order: const []);

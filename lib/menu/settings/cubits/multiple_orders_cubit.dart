@@ -7,8 +7,8 @@ class MultipleOrdersCubit extends HydratedCubit<bool> {
   List<CustomerOrder> _currentOrder;
 
   MultipleOrdersCubit(List<CustomerOrder> initialOrder)
-      : _currentOrder = initialOrder,
-        super(false);
+    : _currentOrder = initialOrder,
+      super(false);
 
   void setCurrentOrder(List<CustomerOrder> order) {
     _currentOrder = order;
@@ -35,4 +35,3 @@ class MultipleOrdersCubit extends HydratedCubit<bool> {
     return {multipleOrdersKey: state};
   }
 }
-
